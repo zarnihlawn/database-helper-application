@@ -20,8 +20,7 @@
 		"db:studio": "drizzle-kit studio",
 		"tauri": "tauri",
 		"tauri:dev": "tauri dev",
-		"tauri:build": "tauri build",
-		"tauri:build:release": "tauri build --release"
+		"tauri:build": "tauri build"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -55,8 +54,23 @@
 		"vitest": "^3.0.0"
 	},
 	"dependencies": {
+		"@langchain/openai": "^0.5.4",
 		"@libsql/client": "^0.14.0",
-		"@tauri-apps/api": "^2.4.1",
-		"drizzle-orm": "^0.40.0"
+		"@tauri-apps/api": "^2.3.0",
+		"@types/d3": "^7.4.3",
+		"@types/oracledb": "^6.5.4",
+		"d3": "^7.9.0",
+		"drizzle-orm": "^0.40.0",
+		"langchain": "^0.3.20",
+		"monaco-editor": "^0.52.2",
+		"mongodb": "^6.15.0",
+		"mysql2": "^3.14.0",
+		"oracledb": "^6.8.0",
+		"pg": "^8.14.1",
+		"sqlite3": "^5.1.7",
+		"typeorm": "^0.3.22",
+		"xterm": "^5.3.0",
+		"xterm-addon-fit": "^0.8.0",
+		"xterm-addon-web-links": "^0.9.0"
 	}
 }
