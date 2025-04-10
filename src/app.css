@@ -1,3 +1,28 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+@plugin "daisyui" {
+	themes:
+		light --default,
+		dark --prefersdark,
+		light,
+		dark;
+}
+
+@import './lib/asset/style/font.style.css';
+
+:root[data-font="Inter"] {
+  font-family: 'Inter', sans-serif;
+}
+
+:root[data-font='ProtoNerd'] {
+  font-family: 'ProtoNerd', monospace;
+}
+
+:root[data-font="NotoSerif"] {
+  font-family: 'NotoSerif', serif;
+}
+
+body {
+  overscroll-behavior: none;
+}

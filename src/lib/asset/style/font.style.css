@@ -1,0 +1,46 @@
+/* Local font imports */
+@font-face {
+    font-family: 'Inter';
+    src: url('../font/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NotoSerif';
+    src: url('../font/NotoSerif-VariableFont_wdth,wght.ttf') format('truetype');
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'ProtoNerd';
+    src: url('../font/0xProtoNerdFont-Regular.ttf') format('truetype');
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Apply font family to all elements */
+* {
+    font-family: var(--font-family);
+}
+
+/* Specific element styles */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family);
+    font-weight: 600;
+}
+
+p, span, div {
+    font-family: var(--font-family);
+}
+
+/* Code and monospace elements */
+code, pre {
+    font-family: var(--font-family);
+}
+
+/* Form elements */
+input, textarea, select, button {
+    font-family: var(--font-family);
+} 

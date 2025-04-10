@@ -1,7 +1,7 @@
 {
 	"name": "database-helper-application",
 	"private": true,
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -17,7 +17,11 @@
 		"test:e2e": "playwright test",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"tauri": "tauri",
+		"tauri:dev": "tauri dev",
+		"tauri:build": "tauri build",
+		"tauri:build:release": "tauri build --release"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -29,15 +33,16 @@
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
 		"@tailwindcss/vite": "^4.0.0",
+		"@tauri-apps/cli": "^2.4.1",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/svelte": "^5.2.4",
+		"daisyui": "^5.0.17",
 		"drizzle-kit": "^0.30.2",
 		"eslint": "^9.18.0",
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-svelte": "^3.0.0",
 		"globals": "^16.0.0",
 		"jsdom": "^26.0.0",
-		"mdsvex": "^0.12.3",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",
 		"prettier-plugin-tailwindcss": "^0.6.11",
@@ -51,6 +56,7 @@
 	},
 	"dependencies": {
 		"@libsql/client": "^0.14.0",
+		"@tauri-apps/api": "^2.4.1",
 		"drizzle-orm": "^0.40.0"
 	}
 }
