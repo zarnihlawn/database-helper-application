@@ -1,50 +1,50 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
-export const user_authorization_level = sqliteTable('user_authorization_level', {
+export const userAuthorizationLevelTable = sqliteTable('user_authorization_level', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
 	level: integer('level').unique().notNull(),
 	description: text('description', {length: 100}).notNull()
 });
 
-export const user_authentication_type = sqliteTable('user_authentication_type', {
+export const userAuthenticationTypeTable = sqliteTable('user_authentication_type', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
 	type: text('type', {length: 25}).notNull(),
 	description: text('description', {length: 100}).notNull()
 });
 
-export const user = sqliteTable('user', {
+export const userTable = sqliteTable('user', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
-	authorization_level_id: integer('authorization_level_id').notNull().references(() => user_authorization_level.id),
-	authentication_type_id: integer('authentication_type_id').notNull().references(() => user_authentication_type.id),
+	authorization_level_id: integer('authorization_level_id').notNull().references(() => userAuthorizationLevelTable.id),
+	authentication_type_id: integer('authentication_type_id').notNull().references(() => userAuthenticationTypeTable.id),
 	name: text('name', {length: 50}).notNull(),
 	password: text('password', {length: 50}).notNull(),
 	email: text('email', {length: 100}).unique().notNull(),
 	secondary_email: text('secondary_email', {length: 100}),
 });
 
-export const user_previous_password = sqliteTable('user_previous_password', {
+export const userPreviousPasswordTable = sqliteTable('user_previous_password', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
-	user_id: integer('user_id').notNull().references(() => user.id),
+	user_id: integer('user_id').notNull().references(() => userTable.id),
 	password: text('password', {length: 50}).notNull(),
 });
 
-export const datasource = sqliteTable('datasource', {
+export const datasourceTable = sqliteTable('datasource', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
 	name: text('type', {length: 25}).unique().notNull(),
 	description: text('description', {length: 100}).notNull()
 });
 
 
-export const datasource_authentication_type = sqliteTable('datasource_authentication_type', {
+export const datasourceAuthenticationTypeTable = sqliteTable('datasource_authentication_type', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
 	type: text('type', {length: 25}).unique().notNull(),
 	description: text('description', {length: 100}).notNull()
 });
 
-export const datasource_connection = sqliteTable('datasource_connection', {
+export const datasourceConnectionTable = sqliteTable('datasource_connection', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
-	datasource_id: integer('datasource_id').notNull().references(() => datasource.id),
-	datasource_authentication_type_id: integer('datasource_authentication_type_id').references(() => datasource_authentication_type.id),
+	datasource_id: integer('datasource_id').notNull().references(() => datasourceTable.id),
+	datasource_authentication_type_id: integer('datasource_authentication_type_id').references(() => datasourceAuthenticationTypeTable.id),
 	connection_name: text('connection_name', {length: 50}),
 	host: text('host'),
 	port: integer('port'),
@@ -56,28 +56,28 @@ export const datasource_connection = sqliteTable('datasource_connection', {
 	path: text('path'),
 });
 
-export const database = sqliteTable('database', {
+export const databaseTable = sqliteTable('database', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
-	datasource_connection_id: integer('datasource_connection_id').notNull().references(() => datasource_connection.id),
-	user_id: integer('user_id').notNull().references(() => user.id),
+	datasource_connection_id: integer('datasource_connection_id').notNull().references(() => datasourceConnectionTable.id),
+	user_id: integer('user_id').notNull().references(() => userTable.id),
 });
 
-export const content_type = sqliteTable('content_type', {
+export const contentTypeTable = sqliteTable('content_type', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
 	name: text('name', {length: 50}).unique().notNull(),
 	description: text('description', {length: 100}).notNull()
 });
 
-export const query_file = sqliteTable('query_file', {
+export const queryFileTable = sqliteTable('query_file', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
 	name: text('name', {length: 20}).notNull(),
 	description: text('description', {length: 100}).notNull()
 });
 
-export const query_block = sqliteTable('query_block', {
+export const queryBlockTable = sqliteTable('query_block', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
-	query_file_id: integer('query_file_id').notNull().references(() => query_file.id),
-	content_type_id: integer('content_type_id').notNull().references(() => content_type.id),
+	query_file_id: integer('query_file_id').notNull().references(() => queryFileTable.id),
+	content_type_id: integer('content_type_id').notNull().references(() => contentTypeTable.id),
 	serial_order: integer('serial_order'),
 	query_content_block: text('query_content_block')
 });

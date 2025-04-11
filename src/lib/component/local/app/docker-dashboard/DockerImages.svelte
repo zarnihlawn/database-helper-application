@@ -97,9 +97,7 @@
 			</li>
 		{/each}
 	{:else}
-		<div class="tab-content bg-base-100 border-base-300">
-			<p class="text-error m-4">No Images found Or Docker is not running</p>
-		</div>
+		<p class="text-error m-4">No Images found Or Docker is not running</p>
 	{/if}
 </section>
 

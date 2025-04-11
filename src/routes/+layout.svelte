@@ -3,8 +3,14 @@
 	import AppToolBar from '$lib/component/global/AppToolBar.svelte';
 	import AppDock from '$lib/component/global/AppDock.svelte';
 	import DockerStalker from '$lib/store/stalker/DockerStalker.svelte';
-
+	import { getThemeFromLocalStorage } from '$lib/store/safe/local-storage/theme.local-storage.svelte';
+	import { getFontFromLocalStorage } from '$lib/store/safe/local-storage/font.local-storage.svelte';
+	
 	let { children } = $props();
+
+	// Local Storage
+	getThemeFromLocalStorage();
+	getFontFromLocalStorage();
 </script>
 
 <!-- Stalkers -->

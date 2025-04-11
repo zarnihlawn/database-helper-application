@@ -1,3 +1,5 @@
+// Imports
+//#region 
 import { AppearanceSvg } from '$lib/asset/image/svg/appearance-svg';
 import { ContainerSvg } from '$lib/asset/image/svg/container-svg';
 import { GeneralSettingsSvg } from '$lib/asset/image/svg/general-settings-svg';
@@ -10,7 +12,10 @@ import { TerminalSvg } from '$lib/asset/image/svg/terminal-svg';
 import { UserManualSvg } from '$lib/asset/image/svg/user-manual-svg';
 import { WelcomeSvg } from '$lib/asset/image/svg/welcome-svg';
 import type { RouteInterface } from '../interface/route.interface';
+// #endregion
 
+// Dashboard Route data use as main routesin DOCK NAVIGATION
+//#region
 export const RouteDocumentationDashboard: RouteInterface[] = [
 	{
 		name: 'Welcome',
@@ -33,7 +38,10 @@ export const RouteDocumentationDashboard: RouteInterface[] = [
 		url: '/app/documentation-dashboard/release-notes-documentation'
 	}
 ];
+//#endregion
 
+// Settings dashboard data use as child routes with TABS NAVIGATION
+//#region
 export const RouteSettingsDashboard: RouteInterface[] = [
 	{
 		name: 'General',
@@ -51,7 +59,10 @@ export const RouteSettingsDashboard: RouteInterface[] = [
 		url: '/app/settings-dashboard/shortcut-settings'
 	}
 ];
+//#endregion
 
+// Docker dashboard data use as child routes with TABS NAVIGATION
+//#region
 export const RouteDockerDashboard: RouteInterface[] = [
 	{
 		name: 'Containers',
@@ -74,3 +85,4 @@ export const RouteDockerDashboard: RouteInterface[] = [
 		url: '/app/docker-dashboard/docker-system-terminal'
 	}
 ];
+// #endregion

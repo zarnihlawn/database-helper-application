@@ -1,5 +1,7 @@
 import type { ReleaseNoteInterface } from "../interface/release-note.interface";
 
+// Release note data
+//#region
 export const ReleaseNoteData: ReleaseNoteInterface[] = [
     {
         title: 'v0.1.0',
@@ -17,3 +19,4 @@ export const ReleaseNoteData: ReleaseNoteInterface[] = [
         date: new Date('2023-03-01')
     }
 ];
+//#endregion

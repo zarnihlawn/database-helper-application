@@ -4,9 +4,9 @@
 @plugin "daisyui" {
 	themes:
 		light --default,
-		dark --prefersdark,
+		abyss --prefersdark,
 		light,
-		dark;
+		abyss;
 }
 
 @import './lib/asset/style/font.style.css';
