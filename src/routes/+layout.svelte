@@ -5,10 +5,14 @@
 	import DockerStalker from '$lib/store/stalker/DockerStalker.svelte';
 	import { getThemeFromLocalStorage } from '$lib/store/safe/local-storage/theme.local-storage.svelte';
 	import { getFontFromLocalStorage } from '$lib/store/safe/local-storage/font.local-storage.svelte';
-	
+	import { getUserFromLocalStorage } from '$lib/store/safe/local-storage/user.local-storage.svelte';
+
 	let { children } = $props();
 
+	// Startup
+
 	// Local Storage
+	getUserFromLocalStorage();
 	getThemeFromLocalStorage();
 	getFontFromLocalStorage();
 </script>

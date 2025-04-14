@@ -25,8 +25,7 @@
 			</button>
 			<ul class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 w-52 shadow">
 				<li>
-					<button class="btn btn-primary" onclick={() => goToRoute('/auth/profile')}>Account</button
-					>
+					<button class="btn btn-primary" onclick={() => goToRoute('/auth/login')}>Account</button>
 				</li>
 			</ul>
 		</div>

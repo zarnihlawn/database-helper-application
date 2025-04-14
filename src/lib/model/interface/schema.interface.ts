@@ -119,7 +119,6 @@ export interface UserDtoInterface {
 }
 
 export interface UserCookieInterface {
-  id: number;
   name: string;
   email: string;
 }

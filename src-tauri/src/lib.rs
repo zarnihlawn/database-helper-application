@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 pub mod modules;
+use crate::modules::bcrypt_controller::encrypt_bcrypt;
 use crate::modules::docker_controller::{
     check_docker_status, delete_docker_container, delete_docker_image, get_all_docker_containers,
     get_all_docker_images, pull_docker_image, restart_docker_service, search_docker_image,
@@ -12,6 +13,11 @@ use crate::modules::window_controller::{
 };
 
 pub mod models;
+
+pub mod database_connection;
+use crate::database_connection::app_database_connection::{
+    get_datasource, get_user_by_email, signup_user,
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -47,6 +53,13 @@ pub fn run() {
             pull_docker_image,
             // terminal Controller
             execute_shell_command,
+            // bcrypt_controller
+            encrypt_bcrypt,
+            // Database Connection
+            // App Database
+            get_user_by_email,
+            signup_user,
+            get_datasource
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -14,7 +14,6 @@
 			: ''
 	);
 
-	console.log('data', data);
 </script>
 
 <div class="tabs tabs-lift">

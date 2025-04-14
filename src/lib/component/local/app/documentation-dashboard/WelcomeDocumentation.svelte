@@ -4,7 +4,7 @@
 </script>
 
 <main
-	class="flex flex-1 flex-col-reverse items-center justify-between gap-10 px-8 py-10 lg:flex-row"
+	class="flex flex-1 flex-col-reverse items-center justify-center gap-10 px-8 py-10 lg:flex-row"
 >
 	<img
 		class="animate-fade-in-up w-32 drop-shadow-xl transition-transform duration-700 ease-in-out hover:scale-105 md:w-32 lg:w-[10rem] xl:w-[15rem]"

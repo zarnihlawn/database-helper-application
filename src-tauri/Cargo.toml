@@ -25,6 +25,14 @@ tauri = { version = "2.4.1", features = [] }
 tauri-plugin-log = "2.0.0-rc"
 reqwest = {version = "0.11", features = ["json"] }
 bollard = "0.18.1"
+sqlite = "0.37.0"
+oracle = "0.6.3"
+postgres = "0.19.10"
+mysql = "26.0.0"
+mongodb = "3.2.3"
+dotenv = "0.15.0"
+bcrypt = "0.17.0"
+keyring = {version = "3.6.2", features = ["apple-native", "windows-native", "sync-secret-service"]}
 
 
 [profile.dev]

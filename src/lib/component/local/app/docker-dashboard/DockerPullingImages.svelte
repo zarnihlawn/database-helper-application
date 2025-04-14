@@ -18,7 +18,6 @@
 			searchDockerImage(searchText)
 				.then((results) => {
 					searchResults = results;
-					console.log('Search Results', searchResults);
 				})
 				.catch((error) => {
 					console.error('Search failed:', error);
