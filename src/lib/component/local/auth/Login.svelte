@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { UserInterface } from '$lib/model/interface/schema.interface';
-	import { getUserFromLocalStorage, setUserToLocalStorage } from '$lib/store/safe/local-storage/user.local-storage.svelte';
+	import { setUserToLocalStorage } from '$lib/store/safe/local-storage/user.local-storage.svelte';
 	import { userState } from '$lib/store/state/user.state.svelte';
 	import { goToRoute } from '$lib/util/router.util';
 	import { invoke } from '@tauri-apps/api/core';
@@ -11,13 +11,13 @@
 	async function handleSubmit() {
 		const result: UserInterface = await invoke('get_user_by_email', { email, password });
 		if (result) {
-      const name: string = result.name;
-      const email: string = result.email;
-      setUserToLocalStorage({ name, email });
+			const id: number = result.id;
+			const name: string = result.name;
+			const email: string = result.email;
+			setUserToLocalStorage({ id, name, email });
 			goToRoute('/auth/profile');
 		}
 	}
-
 </script>
 
 <main class="flex h-full w-full items-center justify-center">

@@ -26,9 +26,10 @@
 			await invoke('signup_user', { name, email, password });
 			const result: UserInterface = await invoke('get_user_by_email', { email, password });
 			if (result) {
-				const name = result.name;
-				const email = result.email;
-				setUserToLocalStorage({ name, email });
+				const id: number = result.id;
+				const name: string = result.name;
+				const email: string = result.email;
+				setUserToLocalStorage({ id, name, email });
 				goToRoute('/auth/profile');
 			}
 		}

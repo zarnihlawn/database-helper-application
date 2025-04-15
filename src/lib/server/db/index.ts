@@ -1,10 +1,18 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import * as schema from './schema';
-import { env } from '$env/dynamic/private';
+import * as os from 'os';
+import * as path from 'path';
 
-if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+function getDbPath(): string {
+	const homeDir = os.homedir();
+	return path.join(homeDir, '.config', 'database-helper-application', 'local.db');
+}
 
-const client = createClient({ url: env.DATABASE_URL });
+const databasePath = getDbPath();
+
+const databaseUrl = `file:${databasePath}`;
+
+const client = createClient({ url: databaseUrl });
 
 export const db = drizzle(client, { schema });

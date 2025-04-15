@@ -1,10 +1,20 @@
 import { defineConfig } from 'drizzle-kit';
 
-if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+import * as os from 'os';
+import * as path from 'path';
+
+function getDbPath(): string {
+	const homeDir = os.homedir();
+	return path.join(homeDir, '.config', 'database-helper-application', 'local.db');
+}
+
+const databasePath = getDbPath();
+
+const databaseUrl = `file:${databasePath}`;
 
 export default defineConfig({
 	schema: './src/lib/server/db/schema.ts',
-	dbCredentials: { url: process.env.DATABASE_URL },
+	dbCredentials: { url: databaseUrl },
 	verbose: true,
 	strict: true,
 	dialect: 'sqlite'

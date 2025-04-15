@@ -1,6 +1,6 @@
-use dotenv::dotenv;
+use crate::database_connection::app_database_connection::get_db_path;
+
 use sqlite::{open, State};
-use std::env::var;
 
 #[tauri::command]
 pub async fn test_sqlite_connection(url: String) -> Result<String, String> {
@@ -19,38 +19,48 @@ pub async fn test_sqlite_connection(url: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-pub async fn save_sqlite_connection(url: String) -> Result<(), String> {
-    dotenv().ok();
-    let app_database = var("DATABASE_URL").map_err(|e| e.to_string())?;
-    let database_url = url.clone();
+pub async fn save_sqlite_connection(
+    user_id: Option<i64>,
+    connection_name: String,
+    url: String,
+) -> Result<(), String> {
+    // Only insert if the connection test succeeds
+    println!("Connecting Rust");
+    test_sqlite_connection(url.clone()).await.map_err(|e| e)?;
 
-    let result = test_sqlite_connection(url).await;
+    let app_database = get_db_path();
+    let connection = open(app_database).map_err(|e| e.to_string())?;
 
-    if result.is_ok() {
-        let connection =
-            open(app_database).map_err(|e| format!("Failed to open database: {}", e))?;
-        let query = "INSERT INTO database_connection (user_id, datasource_id, connection_name, url) VALUES (?, ?, ?, ?)";
+    if let Some(uid) = user_id {
+        // Insert with user_id
+        println!("Connecting with the user: {:?}", user_id);
         let mut statement = connection
-            .prepare(query)
-            .map_err(|e| format!("Failed to prepare statement: {}", e))?;
+            .prepare("INSERT INTO database_connection (user_id, datasource_id, connection_name, url) VALUES (?, ?, ?, ?)")
+            .map_err(|e| e.to_string())?;
+        statement.bind((1, uid)).map_err(|e| e.to_string())?;
+        statement.bind((2, 2)).map_err(|e| e.to_string())?;
         statement
-            .bind((1, 1))
-            .map_err(|e| format!("Failed to bind parameter: {}", e))?;
+            .bind((3, connection_name.as_str()))
+            .map_err(|e| e.to_string())?;
         statement
-            .bind((2, 2))
-            .map_err(|e| format!("Failed to bind parameter: {}", e))?;
-        statement
-            .bind((3, "Sqlite Connection 1"))
-            .map_err(|e| format!("Failed to bind parameter: {}", e))?;
-        statement
-            .bind((4, database_url.as_str()))
-            .map_err(|e| format!("Failed to bind parameter: {}", e))?;
-        if let State::Done = statement.next().map_err(|e| e.to_string())? {
-            Ok(())
-        } else {
-            Err("Failed to execute statement".to_string())
-        }
+            .bind((4, url.as_str()))
+            .map_err(|e| e.to_string())?;
+        statement.next().map_err(|e| e.to_string())?;
     } else {
-        Err(result.unwrap_err())
+        println!("Connecting without user_name");
+        // Insert without user_id
+        let mut statement = connection
+            .prepare("INSERT INTO database_connection (datasource_id, connection_name, url) VALUES (?, ?, ?)")
+            .map_err(|e| e.to_string())?;
+        statement.bind((1, 2)).map_err(|e| e.to_string())?;
+        statement
+            .bind((2, connection_name.as_str()))
+            .map_err(|e| e.to_string())?;
+        statement
+            .bind((3, url.as_str()))
+            .map_err(|e| e.to_string())?;
+        statement.next().map_err(|e| e.to_string())?;
     }
+
+    Ok(())
 }

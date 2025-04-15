@@ -8,6 +8,7 @@
 		datasourceAuthenticationTypeInterface,
 		datasourceInterface
 	} from '$lib/model/interface/schema.interface';
+	import { userState } from '$lib/store/state/user.state.svelte';
 	import { invoke } from '@tauri-apps/api/core';
 	import { open } from '@tauri-apps/plugin-dialog';
 
@@ -25,8 +26,9 @@
 		Oracle: OracleSvg('size-10')
 	};
 
-	let connectionName = $state('');
+	let connection_name = $state('');
 	let url = $state('');
+	let user = userState.user;
 
 	function getUrlConnectionPlaceholder(type: string): string {
 		switch (type) {
@@ -89,10 +91,25 @@
 	}
 
 	async function handleConnect(datasourceType: string) {
-		if (url && connectionName) {
+		if (url && connection_name.trim() !== '') {
 			switch (datasourceType) {
 				case 'SQLite':
-					await invoke('save_sqlite_connection', { url: url });
+					console.log(connection_name);
+					if (user?.id) {
+						console.log('Connecting with user: ', user.id);
+						await invoke('save_sqlite_connection', {
+							user_id: 2,
+							connection_name: connection_name,
+							url: url
+						});
+					} else {
+						console.log('Connecting without user');
+						await invoke('save_sqlite_connection', {
+							user_id: null,
+							connection_name: connection_name,
+							url: url
+						});
+					}
 					break;
 				case 'MySQL':
 					break;
@@ -130,7 +147,7 @@
 					<input
 						type="text"
 						class="input w-full"
-						bind:value={connectionName}
+						bind:value={connection_name}
 						placeholder="{datasource.type} connection 1"
 					/>
 
