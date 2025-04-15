@@ -31,11 +31,8 @@ mongodb = "3.2.3"
 dotenv = "0.15.0"
 bcrypt = "0.17.0"
 tauri-plugin-dialog = "2"
-
-
-[dependencies.tauri-plugin-sql]
-version = "2"
-features = [ "sqlite" ]
+sqlite = "0.37.0"
+dirs = "6.0.0"
 
 
 [dependencies.serde]

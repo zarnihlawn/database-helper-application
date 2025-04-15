@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 pub mod modules;
+
 use crate::modules::bcrypt_controller::encrypt_bcrypt;
 use crate::modules::docker_controller::{
     check_docker_status, delete_docker_container, delete_docker_image, get_all_docker_containers,
@@ -15,13 +16,13 @@ use crate::modules::window_controller::{
 pub mod models;
 
 pub mod database_connection;
-// use crate::database_connection::app_database_connection::{
-//     get_content_type, get_datasource, get_datasource_authentication_type, get_user_by_email,
-//     signup_user,
-// };
-// use crate::database_connection::sqlite_database_connection::{
-//     save_sqlite_connection, test_sqlite_connection,
-// };
+use crate::database_connection::app_database_connection::{
+    app_database_init, get_content_type, get_datasource, get_datasource_authentication_type,
+    get_user_by_email, signup_user,
+};
+use crate::database_connection::sqlite_database_connection::{
+    save_sqlite_connection, test_sqlite_connection,
+};
 
 pub mod dialog;
 use crate::dialog::file_select_dialog::open_sqlite_file_selection_dialog;
@@ -29,9 +30,10 @@ use crate::dialog::file_select_dialog::open_sqlite_file_selection_dialog;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
+            app_database_init();
+
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
@@ -66,14 +68,14 @@ pub fn run() {
             encrypt_bcrypt,
             // Database Connection
             // App Database
-            // get_user_by_email,
-            // signup_user,
-            // get_datasource,
-            // get_content_type,
-            // get_datasource_authentication_type,
-            // // Sqlite Database
-            // test_sqlite_connection,
-            // save_sqlite_connection,
+            get_user_by_email,
+            signup_user,
+            get_datasource,
+            get_content_type,
+            get_datasource_authentication_type,
+            // Sqlite Database
+            test_sqlite_connection,
+            save_sqlite_connection,
             // Dialogs
             open_sqlite_file_selection_dialog
         ])

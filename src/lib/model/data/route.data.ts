@@ -14,7 +14,7 @@ import { WelcomeSvg } from '$lib/asset/image/svg/welcome-svg';
 import type { RouteInterface } from '../interface/route.interface';
 // #endregion
 
-// Dashboard Route data use as main routesin DOCK NAVIGATION
+// Dashboard Route data use as main routes in DOCK NAVIGATION
 //#region
 export const RouteDocumentationDashboard: RouteInterface[] = [
 	{

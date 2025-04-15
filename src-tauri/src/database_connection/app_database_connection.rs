@@ -1,164 +1,199 @@
-// use dotenv::dotenv;
-// use sqlite::{open, State};
-// use std::env::var;
+use crate::models::structs::schema_struct::{
+    ContentType, Datasource, DatasourceAuthenticationType, User,
+};
 
-// use crate::models::structs::schema_struct::{
-//     ContentType, Datasource, DatasourceAuthenticationType, User,
-// };
+use dotenv::dotenv;
+use sqlite::{open, State};
+use std::env::var;
+use std::fs;
+use std::path::Path;
 
-// #[tauri::command]
-// pub async fn get_user_by_email(email: String, password: String) -> Result<User, String> {
-//     dotenv().ok();
+// Check if a database file exists, and create one if it does not.
+pub fn app_database_init() {
+    if !db_file_exists() {
+        create_db_file();
+    }
+}
 
-//     let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
-//     let connection = open(database_url).map_err(|e| e.to_string())?;
+// Create the database file.
+fn create_db_file() {
+    let db_path = get_db_path();
+    let db_dir = Path::new(&db_path).parent().unwrap();
 
-//     let query = "SELECT * FROM user WHERE email = ? AND password = ?";
-//     let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
+    // If the parent directory does not exist, create it.
+    if !db_dir.exists() {
+        fs::create_dir_all(db_dir).unwrap();
+    }
 
-//     statement
-//         .bind((1, email.as_str()))
-//         .map_err(|e| e.to_string())?;
-//     statement
-//         .bind((2, password.as_str()))
-//         .map_err(|e| e.to_string())?;
+    // Create the database file.
+    fs::File::create(db_path).unwrap();
+}
 
-//     match statement.next() {
-//         Ok(State::Row) => {
-//             let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
-//             let authentication_type_id =
-//                 statement.read::<i64, _>(1).map_err(|e| e.to_string())? as i32;
-//             let name = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
-//             let password = statement.read::<String, _>(3).map_err(|e| e.to_string())?;
-//             let email = statement.read::<String, _>(4).map_err(|e| e.to_string())?;
-//             let secondary_email = statement
-//                 .read::<Option<String>, _>(5)
-//                 .map_err(|e| e.to_string())?;
+// Check whether the database file exists.
+fn db_file_exists() -> bool {
+    let db_path = get_db_path();
+    Path::new(&db_path).exists()
+}
 
-//             Ok(User {
-//                 id,
-//                 authentication_type_id,
-//                 name,
-//                 password,
-//                 email,
-//                 secondary_email,
-//             })
-//         }
-//         _ => Err("User not found".to_string()),
-//     }
-// }
+// Get the path where the database file should be located.
+fn get_db_path() -> String {
+    let home_dir = dirs::home_dir().unwrap();
+    home_dir.to_str().unwrap().to_string() + "/.config/database-helper-application/local.db"
+}
 
-// #[tauri::command]
-// pub async fn signup_user(name: String, email: String, password: String) -> Result<(), String> {
-//     dotenv().ok();
+#[tauri::command]
+pub async fn get_user_by_email(email: String, password: String) -> Result<User, String> {
+    dotenv().ok();
 
-//     let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
-//     let connection = open(database_url).map_err(|e| e.to_string())?;
+    let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
+    let connection = open(database_url).map_err(|e| e.to_string())?;
 
-//     // Fixed SQL query (INSERT instead of INERT and proper parameters)
-//     let query =
-//         "INSERT INTO user (name, email, password, authentication_type_id) VALUES (?, ?, ?, ?)";
+    let query = "SELECT * FROM user WHERE email = ? AND password = ?";
+    let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
 
-//     let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
+    statement
+        .bind((1, email.as_str()))
+        .map_err(|e| e.to_string())?;
+    statement
+        .bind((2, password.as_str()))
+        .map_err(|e| e.to_string())?;
 
-//     // Binding parameters (index starts at 1)
-//     statement
-//         .bind((1, name.as_str()))
-//         .map_err(|e| e.to_string())?;
-//     statement
-//         .bind((2, email.as_str()))
-//         .map_err(|e| e.to_string())?;
-//     statement
-//         .bind((3, password.as_str()))
-//         .map_err(|e| e.to_string())?;
-//     statement.bind((4, 1)).map_err(|e| e.to_string())?;
+    match statement.next() {
+        Ok(State::Row) => {
+            let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
+            let authentication_type_id =
+                statement.read::<i64, _>(1).map_err(|e| e.to_string())? as i32;
+            let name = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
+            let password = statement.read::<String, _>(3).map_err(|e| e.to_string())?;
+            let email = statement.read::<String, _>(4).map_err(|e| e.to_string())?;
+            let secondary_email = statement
+                .read::<Option<String>, _>(5)
+                .map_err(|e| e.to_string())?;
 
-//     // Execute the statement
-//     if let State::Done = statement.next().map_err(|e| e.to_string())? {
-//         Ok(())
-//     } else {
-//         Err("Failed to execute statement".to_string())
-//     }
-// }
+            Ok(User {
+                id,
+                authentication_type_id,
+                name,
+                password,
+                email,
+                secondary_email,
+            })
+        }
+        _ => Err("User not found".to_string()),
+    }
+}
 
-// #[tauri::command]
-// pub async fn get_datasource() -> Result<Vec<Datasource>, String> {
-//     dotenv().ok();
+#[tauri::command]
+pub async fn signup_user(name: String, email: String, password: String) -> Result<(), String> {
+    dotenv().ok();
 
-//     let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
-//     let connection = open(database_url).map_err(|e| e.to_string())?;
+    let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
+    let connection = open(database_url).map_err(|e| e.to_string())?;
 
-//     let query = "SELECT * FROM datasource";
-//     let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
+    // Fixed SQL query (INSERT instead of INERT and proper parameters)
+    let query =
+        "INSERT INTO user (name, email, password, authentication_type_id) VALUES (?, ?, ?, ?)";
 
-//     let mut datasources = Vec::new();
+    let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
 
-//     while let Ok(State::Row) = statement.next() {
-//         let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
-//         let r#type = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
-//         let description = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
+    // Binding parameters (index starts at 1)
+    statement
+        .bind((1, name.as_str()))
+        .map_err(|e| e.to_string())?;
+    statement
+        .bind((2, email.as_str()))
+        .map_err(|e| e.to_string())?;
+    statement
+        .bind((3, password.as_str()))
+        .map_err(|e| e.to_string())?;
+    statement.bind((4, 1)).map_err(|e| e.to_string())?;
 
-//         datasources.push(Datasource {
-//             id,
-//             r#type,
-//             description,
-//         });
-//     }
+    // Execute the statement
+    if let State::Done = statement.next().map_err(|e| e.to_string())? {
+        Ok(())
+    } else {
+        Err("Failed to execute statement".to_string())
+    }
+}
 
-//     Ok(datasources)
-// }
+#[tauri::command]
+pub async fn get_datasource() -> Result<Vec<Datasource>, String> {
+    dotenv().ok();
 
-// #[tauri::command]
-// pub async fn get_content_type() -> Result<Vec<ContentType>, String> {
-//     dotenv().ok();
+    let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
+    let connection = open(database_url).map_err(|e| e.to_string())?;
 
-//     let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
-//     let connection = open(database_url).map_err(|e| e.to_string())?;
+    let query = "SELECT * FROM datasource";
+    let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
 
-//     let query = "SELECT * FROM content_type";
-//     let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
+    let mut datasources = Vec::new();
 
-//     let mut content_types = Vec::new();
+    while let Ok(State::Row) = statement.next() {
+        let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
+        let r#type = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
+        let description = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
 
-//     while let Ok(State::Row) = statement.next() {
-//         let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
-//         let name = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
-//         let description = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
+        datasources.push(Datasource {
+            id,
+            r#type,
+            description,
+        });
+    }
 
-//         content_types.push(ContentType {
-//             id,
-//             name,
-//             description,
-//         });
-//     }
+    Ok(datasources)
+}
 
-//     Ok(content_types)
-// }
+#[tauri::command]
+pub async fn get_content_type() -> Result<Vec<ContentType>, String> {
+    dotenv().ok();
 
-// #[tauri::command]
-// pub async fn get_datasource_authentication_type(
-// ) -> Result<Vec<DatasourceAuthenticationType>, String> {
-//     dotenv().ok();
+    let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
+    let connection = open(database_url).map_err(|e| e.to_string())?;
 
-//     let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
-//     let connection = open(database_url).map_err(|e| e.to_string())?;
+    let query = "SELECT * FROM content_type";
+    let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
 
-//     let query = "SELECT * FROM datasource_authentication_type";
-//     let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
+    let mut content_types = Vec::new();
 
-//     let mut datasource_authentication_types = Vec::new();
+    while let Ok(State::Row) = statement.next() {
+        let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
+        let name = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
+        let description = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
 
-//     while let Ok(State::Row) = statement.next() {
-//         let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
-//         let r#type = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
-//         let description = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
+        content_types.push(ContentType {
+            id,
+            name,
+            description,
+        });
+    }
 
-//         datasource_authentication_types.push(DatasourceAuthenticationType {
-//             id,
-//             r#type,
-//             description,
-//         });
-//     }
+    Ok(content_types)
+}
 
-//     Ok(datasource_authentication_types)
-// }
+#[tauri::command]
+pub async fn get_datasource_authentication_type(
+) -> Result<Vec<DatasourceAuthenticationType>, String> {
+    dotenv().ok();
+
+    let database_url = var("DATABASE_URL").map_err(|e| e.to_string())?;
+    let connection = open(database_url).map_err(|e| e.to_string())?;
+
+    let query = "SELECT * FROM datasource_authentication_type";
+    let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
+
+    let mut datasource_authentication_types = Vec::new();
+
+    while let Ok(State::Row) = statement.next() {
+        let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
+        let r#type = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
+        let description = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
+
+        datasource_authentication_types.push(DatasourceAuthenticationType {
+            id,
+            r#type,
+            description,
+        });
+    }
+
+    Ok(datasource_authentication_types)
+}

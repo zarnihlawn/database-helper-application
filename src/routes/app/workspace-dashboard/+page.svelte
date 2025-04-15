@@ -10,15 +10,14 @@
 	let datasource: datasourceInterface[] = [];
 	let datasourceAuthenticationType: datasourceAuthenticationTypeInterface[] = [];
 
-	// invoke<datasourceInterface[]>('get_datasource').then((data) => {
-	// 	datasource = data;
-	// });
-
+	invoke<datasourceInterface[]>('get_datasource').then((data) => {
+		datasource = data;
+	});
 </script>
 
 <main class="m-2">
 	<div class="flex max-w-64 flex-col gap-4">
-		<WorkspaceMenu {datasource}  />
+		<WorkspaceMenu {datasource} />
 		<WorkspaceFileTree />
 	</div>
 </main>
