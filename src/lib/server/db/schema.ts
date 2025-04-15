@@ -31,39 +31,12 @@ export const datasourceTable = sqliteTable('datasource', {
 	description: text('description', { length: 100 }).notNull()
 });
 
-export const datasourceAuthenticationTypeTable = sqliteTable('datasource_authentication_type', {
+export const databaseConnectionTable = sqliteTable('database_connection', {
 	id: integer('id').unique().primaryKey({ autoIncrement: true }),
-	type: text('type', { length: 25 }).unique().notNull(),
-	description: text('description', { length: 100 }).notNull()
-});
-
-export const datasourceConnectionTable = sqliteTable('datasource_connection', {
-	id: integer('id').unique().primaryKey({ autoIncrement: true }),
-	datasource_id: integer('datasource_id')
-		.notNull()
-		.references(() => datasourceTable.id),
-	datasource_authentication_type_id: integer('datasource_authentication_type_id').references(
-		() => datasourceAuthenticationTypeTable.id
-	),
-	connection_name: text('connection_name', { length: 50 }),
-	host: text('host'),
-	port: integer('port'),
-	username: text('username'),
-	password: text('password'),
-	driver: text('driver'),
-	sid: text('sid'),
-	url: text('url'),
-	path: text('path')
-});
-
-export const databaseTable = sqliteTable('database', {
-	id: integer('id').unique().primaryKey({ autoIncrement: true }),
-	datasource_connection_id: integer('datasource_connection_id')
-		.notNull()
-		.references(() => datasourceConnectionTable.id),
-	user_id: integer('user_id')
-		.notNull()
-		.references(() => userTable.id)
+	user_id: integer('user_id').references(() => userTable.id),
+	datasource_id: integer('datasource_id').references(() => datasourceTable.id),
+	connection_name: text('connection_name', { length: 100 }).notNull(),
+	url: text('url', { length: 200 }).notNull()
 });
 
 export const contentTypeTable = sqliteTable('content_type', {
@@ -88,4 +61,14 @@ export const queryBlockTable = sqliteTable('query_block', {
 		.references(() => contentTypeTable.id),
 	serial_order: integer('serial_order'),
 	query_content_block: text('query_content_block')
+});
+
+export const databaseFileCollectionTable = sqliteTable('database_file_collection', {
+	id: integer('id').unique().primaryKey({ autoIncrement: true }),
+	database_connection_id: integer('database_connection_id')
+		.notNull()
+		.references(() => databaseConnectionTable.id),
+	query_file_id: integer('query_file_id')
+		.notNull()
+		.references(() => queryFileTable.id)
 });

@@ -12,14 +12,9 @@
 		}
 	});
 
-	$effect(() => {
-		if (!user) {
-			goToRoute('/auth/login');
-		}
-	});
-
 	function handleLogout() {
 		removeUserFromLocalStorage();
+		goToRoute('/auth/login');
 	}
 </script>
 

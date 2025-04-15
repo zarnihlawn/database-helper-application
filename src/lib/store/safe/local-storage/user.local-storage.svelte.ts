@@ -23,7 +23,7 @@ export const setUserToLocalStorage = (user: UserCookieInterface) => {
 
 export const removeUserFromLocalStorage = () => {
 	if (browser) {
-		userState.user = null;
 		localStorage.removeItem(USER_STORAGE_KEY);
+		userState.user = null;
 	}
 };

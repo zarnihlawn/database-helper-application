@@ -1,4 +1,5 @@
 // ContentType
+#[derive(serde::Serialize)]
 pub struct ContentType {
     pub id: i32,
     pub name: String,
@@ -66,6 +67,7 @@ pub struct DatasourceDto {
 }
 
 // DatasourceAuthenticationType
+#[derive(serde::Serialize)]
 pub struct DatasourceAuthenticationType {
     pub id: i32,
     pub r#type: String, // Use r# to escape Rust's keyword 'type'
@@ -109,7 +111,6 @@ pub struct QueryFileDto {
 #[derive(serde::Serialize)]
 pub struct User {
     pub id: i32,
-    pub authorization_level_id: i32,
     pub authentication_type_id: i32,
     pub name: String,
     pub password: String,

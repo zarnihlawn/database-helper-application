@@ -287,5 +287,3 @@ pub async fn pull_docker_image(image_name: String) -> Result<bool, String> {
         Err(String::from_utf8_lossy(&output.stderr).to_string())
     }
 }
-
-

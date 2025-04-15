@@ -11,7 +11,6 @@ INSERT INTO datasource (type, description) VALUES ('SQLite', "SQLite: a serverle
 INSERT INTO datasource (type, description) VALUES ('MongoDB', "MongoDB: a flexible, NoSQL document database, utilizing JSON-like BSON, designed for high scalability and agile development, ideal for handling unstructured or semi-structured data.");
 INSERT INTO datasource (type, description) VALUES ('Oracle', "Oracle: a robust, enterprise-grade RDBMS, known for scalability, reliability, and advanced features, supporting complex transactions and data warehousing, with a focus on mission-critical applications.");
 INSERT INTO datasource (type, description) VALUES ('MySQL', "MySQL: a widely used, open-source relational database, known for its speed and reliability, supporting diverse applications from web development to enterprise data storage.");
-INSERT INTO datasource (type, description) VALUES ('MSSQL', "Microsoft SQL Server (MSSQL): a comprehensive RDBMS by Microsoft, offering robust data management, business intelligence, and analytics tools, with strong integration into the Microsoft ecosystem.");
 
 INSERT INTO datasource_authentication_type (type, description) VALUES ('User and Password', "Simplest way of database authentication.");
 

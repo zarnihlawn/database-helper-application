@@ -1,12 +1,25 @@
-<script>
+<script lang="ts">
 	import { AddSvg } from '$lib/asset/image/svg/add-svg';
 	import { MenuSvg } from '$lib/asset/image/svg/menu-svg';
 	import { RefreshSvg } from '$lib/asset/image/svg/refresh-svg';
 	import { RemoveSvg } from '$lib/asset/image/svg/remove-svg';
+	import type { datasourceAuthenticationTypeInterface } from '$lib/model/interface/schema.interface';
+	import type { datasourceInterface } from '$lib/model/interface/schema.interface';
+	import WorkspaceSelectDatasource from './dialog/SelectDatasourceWorkspace.svelte';
 
-	function handleAddClick() {}
+	let { datasource, datasourceAuthenticationType } = $props<{
+		datasource: datasourceInterface[];
+	}>();
 
-	function handleDialogClose() {}
+	let showSelectionDialog = $state(false);
+
+	function handleAddClick() {
+		showSelectionDialog = true;
+	}
+
+	function handleDialogClose() {
+		showSelectionDialog = false;
+	}
 </script>
 
 <main class="flex w-full justify-between">
@@ -35,3 +48,11 @@
 		</div>
 	</div>
 </main>
+
+{#if showSelectionDialog}
+	<WorkspaceSelectDatasource
+		{datasource}
+		{datasourceAuthenticationType}
+		onClose={handleDialogClose}
+	/>
+{/if}
