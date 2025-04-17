@@ -1,6 +1,4 @@
-use crate::models::structs::schema_struct::{
-    ContentType, Datasource, DatasourceAuthenticationType, User,
-};
+use crate::models::structs::schema_struct::{ContentTypeStruct, DatasourceStruct, User};
 
 use sqlite::{open, State};
 use std::fs;
@@ -70,20 +68,6 @@ fn create_tables() {
                 email TEXT NOT NULL UNIQUE,
                 secondary_email TEXT,
                 FOREIGN KEY(authentication_type_id) REFERENCES user_authentication_type(id)
-            );
-            ",
-        )
-        .unwrap();
-
-    // user_previous_password
-    connection
-        .execute(
-            "
-            CREATE TABLE IF NOT EXISTS user_previous_password (
-                id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-                user_id INTEGER NOT NULL,
-                password TEXT NOT NULL,
-                FOREIGN KEY(user_id) REFERENCES user(id)
             );
             ",
         )
@@ -287,7 +271,7 @@ pub async fn signup_user(name: String, email: String, password: String) -> Resul
 }
 
 #[tauri::command]
-pub async fn get_datasource() -> Result<Vec<Datasource>, String> {
+pub async fn get_datasource() -> Result<Vec<DatasourceStruct>, String> {
     let database_url = get_db_path();
     let connection = open(database_url).map_err(|e| e.to_string())?;
 
@@ -298,12 +282,12 @@ pub async fn get_datasource() -> Result<Vec<Datasource>, String> {
 
     while let Ok(State::Row) = statement.next() {
         let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
-        let r#type = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
+        let name = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
         let description = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
 
-        datasources.push(Datasource {
+        datasources.push(DatasourceStruct {
             id,
-            r#type,
+            name,
             description,
         });
     }
@@ -312,7 +296,7 @@ pub async fn get_datasource() -> Result<Vec<Datasource>, String> {
 }
 
 #[tauri::command]
-pub async fn get_content_type() -> Result<Vec<ContentType>, String> {
+pub async fn get_content_type() -> Result<Vec<ContentTypeStruct>, String> {
     let database_url = get_db_path();
     let connection = open(database_url).map_err(|e| e.to_string())?;
 
@@ -326,7 +310,7 @@ pub async fn get_content_type() -> Result<Vec<ContentType>, String> {
         let name = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
         let description = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
 
-        content_types.push(ContentType {
+        content_types.push(ContentTypeStruct {
             id,
             name,
             description,
@@ -334,30 +318,4 @@ pub async fn get_content_type() -> Result<Vec<ContentType>, String> {
     }
 
     Ok(content_types)
-}
-
-#[tauri::command]
-pub async fn get_datasource_authentication_type(
-) -> Result<Vec<DatasourceAuthenticationType>, String> {
-    let database_url = get_db_path();
-    let connection = open(database_url).map_err(|e| e.to_string())?;
-
-    let query = "SELECT * FROM datasource_authentication_type";
-    let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
-
-    let mut datasource_authentication_types = Vec::new();
-
-    while let Ok(State::Row) = statement.next() {
-        let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
-        let r#type = statement.read::<String, _>(1).map_err(|e| e.to_string())?;
-        let description = statement.read::<String, _>(2).map_err(|e| e.to_string())?;
-
-        datasource_authentication_types.push(DatasourceAuthenticationType {
-            id,
-            r#type,
-            description,
-        });
-    }
-
-    Ok(datasource_authentication_types)
 }

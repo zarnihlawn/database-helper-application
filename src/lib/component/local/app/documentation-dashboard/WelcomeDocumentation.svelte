@@ -1,6 +1,7 @@
 <script lang="ts">
 	import welcome from '$lib/asset/image/webp/welcome.webp';
-	let username = $state('Zarni Hlawn');
+	import { userState } from '$lib/store/state/user.state.svelte';
+	let username = userState.user?.name;
 </script>
 
 <main
@@ -13,7 +14,13 @@
 	/>
 	<div class="animate-fade-in-up space-y-4 text-center lg:text-left">
 		<h1 class="text-3xl font-bold md:text-4xl">
-			Welcome Back, <span class="text-blue-600">{username}</span>!
+			Welcome
+			{#if username}
+				Back <span class="text-blue-600">
+					{username}
+				</span>
+			{/if}
+			!
 		</h1>
 		<p class="text-md md:text-lg">
 			Ready to manage your data like a pro?<br />

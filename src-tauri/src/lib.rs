@@ -17,8 +17,7 @@ pub mod models;
 
 pub mod database_connection;
 use crate::database_connection::app_database_connection::{
-    app_database_init, get_content_type, get_datasource, get_datasource_authentication_type,
-    get_user_by_email, signup_user,
+    app_database_init, get_content_type, get_datasource, get_user_by_email, signup_user,
 };
 use crate::database_connection::sqlite_database_connection::{
     save_sqlite_connection, test_sqlite_connection,
@@ -72,7 +71,6 @@ pub fn run() {
             signup_user,
             get_datasource,
             get_content_type,
-            get_datasource_authentication_type,
             // Sqlite Database
             test_sqlite_connection,
             save_sqlite_connection,

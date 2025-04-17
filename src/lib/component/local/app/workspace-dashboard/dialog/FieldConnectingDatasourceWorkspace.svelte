@@ -26,7 +26,7 @@
 		Oracle: OracleSvg('size-10')
 	};
 
-	let connection_name = $state('');
+	let connectionName = $state('');
 	let url = $state('');
 	let user = userState.user;
 
@@ -91,22 +91,22 @@
 	}
 
 	async function handleConnect(datasourceType: string) {
-		if (url && connection_name.trim() !== '') {
+		if (url && connectionName.trim() !== '') {
 			switch (datasourceType) {
 				case 'SQLite':
-					console.log(connection_name);
+					console.log(connectionName);
 					if (user?.id) {
 						console.log('Connecting with user: ', user.id);
 						await invoke('save_sqlite_connection', {
 							user_id: 2,
-							connection_name: connection_name,
+							connection_name: connectionName,
 							url: url
 						});
 					} else {
 						console.log('Connecting without user');
 						await invoke('save_sqlite_connection', {
 							user_id: null,
-							connection_name: connection_name,
+							connection_name: connectionName,
 							url: url
 						});
 					}
@@ -147,7 +147,7 @@
 					<input
 						type="text"
 						class="input w-full"
-						bind:value={connection_name}
+						bind:value={connectionName}
 						placeholder="{datasource.type} connection 1"
 					/>
 
