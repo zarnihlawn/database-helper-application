@@ -24,6 +24,20 @@
 					</td>
 				</tr>
 			</tbody>
+			<tbody>
+				<tr>
+					<td>2</td>
+					<td>Refresh</td>
+					<td>refresh the application</td>
+					<td>
+						<kbd class="kbd">Ctrl</kbd>
+						+
+						<kbd class="kbd">R</kbd>
+						|
+						<kbd class="kbd">f5</kbd>
+					</td>
+				</tr>
+			</tbody>
 		</table>
 	</div>
 </main>

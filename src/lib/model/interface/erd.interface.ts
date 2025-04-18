@@ -7,3 +7,8 @@ export interface TableInfoInterface {
 	name: string;
 	columns: ColumnInfoInterface[];
 }
+
+export interface CollectionInfo {
+	database_name: string;
+	collection_name: string;
+}

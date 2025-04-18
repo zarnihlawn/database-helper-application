@@ -20,6 +20,12 @@ use crate::database_connection::app_database_connection::{
     app_database_init, get_content_type, get_database_connection, get_datasource,
     get_user_by_email, signup_user,
 };
+use crate::database_connection::mongo_database_connection::{
+    get_database_from_mongo, save_mongo_connection, test_mongo_connection,
+};
+use crate::database_connection::oracle_database_connection::{
+    get_database_from_oracle, save_oracle_connection, test_oracle_connection,
+};
 use crate::database_connection::postgres_database_connection::{
     get_database_from_postgres, save_postgres_connection, test_postgres_connection,
 };
@@ -84,8 +90,16 @@ pub fn run() {
             test_postgres_connection,
             save_postgres_connection,
             get_database_from_postgres,
+            // Mongo Database
+            test_mongo_connection,
+            save_mongo_connection,
+            get_database_from_mongo,
+            // Oracle Database
+            test_oracle_connection,
+            save_oracle_connection,
+            get_database_from_oracle,
             // Dialogs
-            open_sqlite_file_selection_dialog
+            open_sqlite_file_selection_dialog,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

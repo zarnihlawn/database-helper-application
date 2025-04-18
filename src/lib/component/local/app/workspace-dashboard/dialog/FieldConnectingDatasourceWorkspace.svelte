@@ -31,13 +31,13 @@
 			case 'SQLite':
 				return 'Select SQLite database file...';
 			case 'MySQL':
-				return 'mysql://username:password@localhost:3306/database';
+				return 'mysql://username:password@localhost:3306';
 			case 'PostgreSQL':
-				return 'postgres://username:password@localhost:5432/database';
+				return 'postgres://username:password@localhost:5432';
 			case 'MongoDB':
-				return 'mongodb://localhost:27017/database';
+				return 'mongodb://username:password@localhost:27017';
 			case 'Oracle':
-				return 'oracle://username:password@localhost:1521/database';
+				return 'oracle://username:password@localhost:1521';
 			default:
 				return '';
 		}
@@ -74,15 +74,26 @@
 					break;
 				case 'PostgreSQL':
 					try {
-						const result = await invoke('test_postgres_connection', { url: url });
-						console.log('Connection result:', result);
+						await invoke('test_postgres_connection', { url: url });
 					} catch (error) {
 						console.error('Connection error:', error);
 					}
 					break;
 				case 'MongoDB':
+					try {
+						const result = await invoke('test_mongo_connection', { url: url });
+						console.log('Connection result:', result);
+					} catch (error) {
+						console.error('Connection error:', error);
+					}
 					break;
 				case 'Oracle':
+					try {
+						const result = await invoke('test_oracle_connection', { url: url });
+						console.log('Connection result:', result);
+					} catch (error) {
+						console.error('Connection error:', error);
+					}
 					break;
 				default:
 					break;
@@ -128,8 +139,36 @@
 					}
 					break;
 				case 'MongoDB':
+					if (user?.id) {
+						const result = await invoke('save_mongo_connection', {
+							user_id: user.id,
+							url: url,
+							connectionName: connectionName
+						});
+						console.log(result);
+					} else {
+						const result = await invoke('save_mongo_connection', {
+							user_id: null,
+							url: url,
+							connectionName: connectionName
+						});
+						console.log(result);
+					}
 					break;
 				case 'Oracle':
+					if (user?.id) {
+						const result = await invoke('save_oracle_connection', {
+							user_id: user.id,
+							url: url,
+							connectionName: connectionName
+						});
+					} else {
+						const result = await invoke('save_oracle_connection', {
+							user_id: null,
+							url: url,
+							connectionName: connectionName
+						});
+					}
 					break;
 				default:
 					break;

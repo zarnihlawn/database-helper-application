@@ -11,3 +11,9 @@ pub struct TableInfo {
     pub name: String,
     pub columns: Vec<ColumnInfo>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CollectionInfo {
+    pub database_name: String,
+    pub collection_name: String,
+}

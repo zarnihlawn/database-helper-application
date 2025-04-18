@@ -110,6 +110,7 @@ dependencies = [
  "bcrypt",
  "bollard",
  "dirs",
+ "futures-util",
  "log",
  "mongodb",
  "mysql",
