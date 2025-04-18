@@ -17,10 +17,14 @@ pub mod models;
 
 pub mod database_connection;
 use crate::database_connection::app_database_connection::{
-    app_database_init, get_content_type, get_datasource, get_user_by_email, signup_user,
+    app_database_init, get_content_type, get_database_connection, get_datasource,
+    get_user_by_email, signup_user,
+};
+use crate::database_connection::postgres_database_connection::{
+    get_database_from_postgres, save_postgres_connection, test_postgres_connection,
 };
 use crate::database_connection::sqlite_database_connection::{
-    save_sqlite_connection, test_sqlite_connection,
+    get_database_from_sqlite, save_sqlite_connection, test_sqlite_connection,
 };
 
 pub mod dialog;
@@ -71,9 +75,15 @@ pub fn run() {
             signup_user,
             get_datasource,
             get_content_type,
+            get_database_connection,
             // Sqlite Database
             test_sqlite_connection,
             save_sqlite_connection,
+            get_database_from_sqlite,
+            // Postgres Database
+            test_postgres_connection,
+            save_postgres_connection,
+            get_database_from_postgres,
             // Dialogs
             open_sqlite_file_selection_dialog
         ])

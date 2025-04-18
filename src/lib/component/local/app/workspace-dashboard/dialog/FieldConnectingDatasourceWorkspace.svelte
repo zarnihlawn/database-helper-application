@@ -4,17 +4,13 @@
 	import { OracleSvg } from '$lib/asset/image/svg/oracle-svg';
 	import { PostgreSQLSvg } from '$lib/asset/image/svg/postgresql-svg';
 	import { SQLiteSvg } from '$lib/asset/image/svg/sqlite-svg';
-	import type {
-		datasourceAuthenticationTypeInterface,
-		datasourceInterface
-	} from '$lib/model/interface/schema.interface';
+	import type { DatasourceInterface } from '$lib/model/interface/schema.interface';
 	import { userState } from '$lib/store/state/user.state.svelte';
 	import { invoke } from '@tauri-apps/api/core';
 	import { open } from '@tauri-apps/plugin-dialog';
 
-	let { datasource, datasourceAuthenticationType, onClose } = $props<{
-		datasource: datasourceInterface;
-		datasourceAuthenticationType: datasourceAuthenticationTypeInterface[];
+	let { datasource, onClose } = $props<{
+		datasource: DatasourceInterface;
 		onClose: () => void;
 	}>();
 
@@ -30,8 +26,8 @@
 	let url = $state('');
 	let user = userState.user;
 
-	function getUrlConnectionPlaceholder(type: string): string {
-		switch (type) {
+	function getUrlConnectionPlaceholder(name: string): string {
+		switch (name) {
 			case 'SQLite':
 				return 'Select SQLite database file...';
 			case 'MySQL':
@@ -52,7 +48,7 @@
 	}
 
 	async function handleSelectSQLiteFile() {
-		if (datasource.type === 'SQLite') {
+		if (datasource.name === 'SQLite') {
 			const selected = await open({
 				filters: [
 					{
@@ -77,6 +73,12 @@
 				case 'MySQL':
 					break;
 				case 'PostgreSQL':
+					try {
+						const result = await invoke('test_postgres_connection', { url: url });
+						console.log('Connection result:', result);
+					} catch (error) {
+						console.error('Connection error:', error);
+					}
 					break;
 				case 'MongoDB':
 					break;
@@ -94,26 +96,36 @@
 		if (url && connectionName.trim() !== '') {
 			switch (datasourceType) {
 				case 'SQLite':
-					console.log(connectionName);
 					if (user?.id) {
-						console.log('Connecting with user: ', user.id);
 						await invoke('save_sqlite_connection', {
-							user_id: 2,
-							connection_name: connectionName,
-							url: url
+							user_id: user.id,
+							url: url,
+							connectionName: connectionName
 						});
 					} else {
-						console.log('Connecting without user');
 						await invoke('save_sqlite_connection', {
 							user_id: null,
-							connection_name: connectionName,
-							url: url
+							url: url,
+							connectionName: connectionName
 						});
 					}
 					break;
 				case 'MySQL':
 					break;
 				case 'PostgreSQL':
+					if (user?.id) {
+						await invoke('save_postgres_connection', {
+							user_id: user.id,
+							url: url,
+							connectionName: connectionName
+						});
+					} else {
+						await invoke('save_postgres_connection', {
+							user_id: null,
+							url: url,
+							connectionName: connectionName
+						});
+					}
 					break;
 				case 'MongoDB':
 					break;
@@ -132,8 +144,8 @@
 	<div class="modal-box flex h-[90vh] w-11/12 max-w-5xl flex-col">
 		<h2 class=" flex items-center gap-2 text-2xl font-bold">
 			Connect to
-			{@html svgMap[datasource.type]}
-			{datasource.type}
+			{@html svgMap[datasource.name]}
+			{datasource.name}
 		</h2>
 
 		<div class="my-1 flex-1 overflow-y-auto py-3">
@@ -145,37 +157,35 @@
 
 					<label for="host" class="fieldset-label">Name</label>
 					<input
-						type="text"
+						name="text"
 						class="input w-full"
 						bind:value={connectionName}
-						placeholder="{datasource.type} connection 1"
+						placeholder="{datasource.name} connection 1"
 					/>
 
 					<label for="url" class="fieldset-label">URL</label>
-					{#if datasource.type === 'SQLite'}
-						<input
-							type="file"
-							class="file-input file-input-info w-full"
-							onclick={handleSelectSQLiteFile}
-						/>
+					{#if datasource.name === 'SQLite'}
+						<button class="btn btn-primary w-full" onclick={handleSelectSQLiteFile}
+							>Select SQLite Database</button
+						>
 					{:else}
 						<input
-							type="text"
+							name="text"
 							class="input w-full"
 							bind:value={url}
-							placeholder={getUrlConnectionPlaceholder(datasource.type)}
+							placeholder={getUrlConnectionPlaceholder(datasource.name)}
 						/>
 						{#if url !== ''}
-							<p class="fieldset-label ml-2">E.g. {getUrlConnectionPlaceholder(datasource.type)}</p>
+							<p class="fieldset-label ml-2">E.g. {getUrlConnectionPlaceholder(datasource.name)}</p>
 						{/if}
 					{/if}
 
 					<div class="modal-action">
-						<button class="btn btn-success" onclick={() => handleTestConnection(datasource.type)}>
+						<button class="btn btn-success" onclick={() => handleTestConnection(datasource.name)}>
 							Test Connection
 						</button>
 						<button class="btn btn-error" onclick={handleClose}>Cancel</button>
-						<button class="btn btn-primary" onclick={() => handleConnect(datasource.type)}
+						<button class="btn btn-primary" onclick={() => handleConnect(datasource.name)}
 							>Connect</button
 						>
 					</div>

@@ -1,4 +1,6 @@
-use crate::models::structs::schema_struct::{ContentTypeStruct, DatasourceStruct, User};
+use crate::models::structs::schema_struct::{
+    ContentTypeStruct, DatabaseConnectionStruct, DatasourceStruct, User,
+};
 
 use sqlite::{open, State};
 use std::fs;
@@ -197,6 +199,21 @@ fn seed_database() {
         statement.bind((2, auth_desc)).unwrap();
         statement.next().unwrap();
     }
+
+    let content_type_inserts = vec![
+        ("MD", "A Markdown content type."),
+        ("JSON", "A JSON content type."),
+        ("SQL", "An SQL content type."),
+    ];
+
+    for (content_type, content_desc) in content_type_inserts {
+        let mut statement = connection
+            .prepare("INSERT INTO content_type (name, description) VALUES (?, ?);")
+            .unwrap();
+        statement.bind((1, content_type)).unwrap();
+        statement.bind((2, content_desc)).unwrap();
+        statement.next().unwrap();
+    }
 }
 
 #[tauri::command]
@@ -318,4 +335,33 @@ pub async fn get_content_type() -> Result<Vec<ContentTypeStruct>, String> {
     }
 
     Ok(content_types)
+}
+
+#[tauri::command]
+pub async fn get_database_connection() -> Result<Vec<DatabaseConnectionStruct>, String> {
+    let database_url = get_db_path();
+    let connection = open(database_url).map_err(|e| e.to_string())?;
+
+    let query = "SELECT * FROM database_connection";
+    let mut statement = connection.prepare(query).map_err(|e| e.to_string())?;
+
+    let mut database_connections = Vec::new();
+
+    while let Ok(State::Row) = statement.next() {
+        let id = statement.read::<i64, _>(0).map_err(|e| e.to_string())? as i32;
+        let user_id = statement.read::<i64, _>(1).map_err(|e| e.to_string())? as i32;
+        let datasource_id = statement.read::<i64, _>(2).map_err(|e| e.to_string())? as i32;
+        let connection_name = statement.read::<String, _>(3).map_err(|e| e.to_string())?;
+        let url = statement.read::<String, _>(4).map_err(|e| e.to_string())?;
+
+        database_connections.push(DatabaseConnectionStruct {
+            id,
+            user_id: Some(user_id),
+            datasource_id,
+            connection_name,
+            url,
+        });
+    }
+
+    Ok(database_connections)
 }

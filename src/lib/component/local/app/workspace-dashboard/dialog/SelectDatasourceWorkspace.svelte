@@ -4,17 +4,14 @@
 	import { OracleSvg } from '$lib/asset/image/svg/oracle-svg';
 	import { PostgreSQLSvg } from '$lib/asset/image/svg/postgresql-svg';
 	import { SQLiteSvg } from '$lib/asset/image/svg/sqlite-svg';
-	import type {
-		datasourceAuthenticationTypeInterface,
-		datasourceInterface
-	} from '$lib/model/interface/schema.interface';
+	import type { DatasourceInterface } from '$lib/model/interface/schema.interface';
 	import FieldConnectingDatasourceWorkspace from './FieldConnectingDatasourceWorkspace.svelte';
 
-	let { datasource, datasourceAuthenticationType, onClose } = $props<{
-		datasource: datasourceInterface[];
-		datasourceAuthenticationType: datasourceAuthenticationTypeInterface[];
+	let { datasource, onClose } = $props<{
+		datasource: DatasourceInterface[];
 		onClose: () => void;
 	}>();
+
 
 	const svgMap: Record<string, string> = {
 		SQLite: SQLiteSvg('size-20'),
@@ -24,14 +21,14 @@
 		Oracle: OracleSvg('size-20')
 	};
 
-	let selectedDatasource: datasourceInterface | null = $state(null);
+	let selectedDatasource: DatasourceInterface | null = $state(null);
 	let showFieldConnectingDatasourceDialog = $state(false);
 
 	function handleClose() {
 		onClose();
 	}
 
-	function handleOpenFieldConnectingDatasourceDialog(datasource: datasourceInterface) {
+	function handleOpenFieldConnectingDatasourceDialog(datasource: DatasourceInterface) {
 		selectedDatasource = datasource;
 		showFieldConnectingDatasourceDialog = true;
 	}
@@ -46,10 +43,10 @@
 				{#each datasource as datasource}
 					<div class="card bg-base-100 flex p-5 shadow-sm">
 						<div class="card-image flex items-center justify-center">
-							{@html svgMap[datasource.type]}
+							{@html svgMap[datasource.name]}
 						</div>
 						<div class="card-body flex">
-							<h2 class="card-title flex justify-center text-2xl">{datasource.type}</h2>
+							<h2 class="card-title flex justify-center text-2xl">{datasource.name}</h2>
 							<div class="text-xs font-semibold opacity-60">
 								{datasource.description}
 							</div>
@@ -74,7 +71,6 @@
 {#if showFieldConnectingDatasourceDialog && selectedDatasource}
 	<FieldConnectingDatasourceWorkspace
 		datasource={selectedDatasource}
-		{datasourceAuthenticationType}
 		onClose={() => {
 			showFieldConnectingDatasourceDialog = false;
 			selectedDatasource = null;

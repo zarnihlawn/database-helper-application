@@ -12,6 +12,7 @@ pub struct ContentTypeDtoStruct {
 }
 
 // DatabaseConnection
+#[derive(serde::Serialize)]
 pub struct DatabaseConnectionStruct {
     pub id: i32,
     pub user_id: Option<i32>,

@@ -3,12 +3,11 @@
 	import { MenuSvg } from '$lib/asset/image/svg/menu-svg';
 	import { RefreshSvg } from '$lib/asset/image/svg/refresh-svg';
 	import { RemoveSvg } from '$lib/asset/image/svg/remove-svg';
-	import type { datasourceAuthenticationTypeInterface } from '$lib/model/interface/schema.interface';
-	import type { datasourceInterface } from '$lib/model/interface/schema.interface';
+	import type { DatasourceInterface } from '$lib/model/interface/schema.interface';
 	import WorkspaceSelectDatasource from './dialog/SelectDatasourceWorkspace.svelte';
 
-	let { datasource, datasourceAuthenticationType } = $props<{
-		datasource: datasourceInterface[];
+	let { datasource } = $props<{
+		datasource: DatasourceInterface[];
 	}>();
 
 	let showSelectionDialog = $state(false);
@@ -23,7 +22,7 @@
 </script>
 
 <main class="flex w-full justify-between">
-	<div class="join">
+	<div class="join shadow-sm">
 		<div class="tooltip tooltip-right tooltip-success" data-tip="Add a data source">
 			<button class="btn text-success join-item" onclick={handleAddClick}>
 				{@html AddSvg}
@@ -40,8 +39,8 @@
 			</button>
 		</div>
 	</div>
-	<div class="join">
-		<div class="tooltip tooltip-right tooltip-info" data-tip="More Actions">
+	<div class="join shadow-sm">
+		<div class="tooltip tooltip-right tooltip-info shadow-sm" data-tip="More Actions">
 			<button class="btn text-info join-item">
 				{@html MenuSvg}
 			</button>
@@ -50,9 +49,5 @@
 </main>
 
 {#if showSelectionDialog}
-	<WorkspaceSelectDatasource
-		{datasource}
-		{datasourceAuthenticationType}
-		onClose={handleDialogClose}
-	/>
+	<WorkspaceSelectDatasource {datasource} onClose={handleDialogClose} />
 {/if}
