@@ -1,28 +1,27 @@
-use sqlx::{postgres::PgPool, SqlitePool};
+use sqlx::{mysql::MySqlPool, SqlitePool};
 
 use super::app_database_connection::get_db_path;
 
 #[tauri::command]
-pub async fn test_postgres_connection(url: String) -> Result<String, String> {
-    let pool = PgPool::connect(&url).await.map_err(|e| e.to_string())?;
+pub async fn test_maria_connection(url: String) -> Result<String, String> {
+    let pool = MySqlPool::connect(&url).await.map_err(|e| e.to_string())?;
 
     let _ = sqlx::query("SELECT 1")
         .fetch_all(&pool)
         .await
         .map_err(|e| e.to_string())?;
 
-    println!("Connected to postgres");
     Ok("Connected".to_string())
 }
 
 #[tauri::command]
-pub async fn save_postgres_connection(
+pub async fn save_maria_connection(
     user_id: Option<i64>,
     url: String,
     connection_name: String,
 ) -> Result<(), String> {
-    println!("Saving postgres connection");
-    test_postgres_connection(url.clone()).await.map_err(|e| e)?;
+    // Only insert if the connection test succeeds
+    test_maria_connection(url.clone()).await.map_err(|e| e)?;
 
     let app_database = get_db_path();
     let pool = SqlitePool::connect(&format!("sqlite://{}", app_database))
@@ -33,7 +32,7 @@ pub async fn save_postgres_connection(
         // Insert with user_id
         sqlx::query("INSERT INTO database_connection (user_id, datasource_id, connection_name, url) VALUES (?, ?, ?, ?)")
             .bind(uid)
-            .bind(1)
+            .bind(6)
             .bind(connection_name.as_str())
             .bind(url.as_str())
             .execute(&pool)
@@ -42,7 +41,7 @@ pub async fn save_postgres_connection(
     } else {
         // Insert without user_id
         sqlx::query("INSERT INTO database_connection (datasource_id, connection_name, url) VALUES (?, ?, ?)")
-            .bind(1)
+            .bind(6)
             .bind(connection_name.as_str())
             .bind(url.as_str())
             .execute(&pool)
@@ -54,4 +53,4 @@ pub async fn save_postgres_connection(
 }
 
 #[tauri::command]
-pub async fn get_database_from_postgres(url: String) {}
+pub async fn get_database_from_maria(url: String) {}

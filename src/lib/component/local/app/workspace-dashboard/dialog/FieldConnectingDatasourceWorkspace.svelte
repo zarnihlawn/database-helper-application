@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
+	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
 	import { MongoDBSvg } from '$lib/asset/image/svg/mongodb-svg';
 	import { MySQLSvg } from '$lib/asset/image/svg/mysql-svg';
-	import { OracleSvg } from '$lib/asset/image/svg/oracle-svg';
 	import { PostgreSQLSvg } from '$lib/asset/image/svg/postgresql-svg';
 	import { SQLiteSvg } from '$lib/asset/image/svg/sqlite-svg';
+	import { SurrealSvg } from '$lib/asset/image/svg/surreal-svg';
 	import type { DatasourceInterface } from '$lib/model/interface/schema.interface';
 	import { userState } from '$lib/store/state/user.state.svelte';
 	import { invoke } from '@tauri-apps/api/core';
@@ -15,11 +17,13 @@
 	}>();
 
 	const svgMap: Record<string, string> = {
-		SQLite: SQLiteSvg('size-10'),
-		MySQL: MySQLSvg('size-10'),
-		PostgreSQL: PostgreSQLSvg('size-10'),
-		MongoDB: MongoDBSvg('size-10'),
-		Oracle: OracleSvg('size-10')
+		SQLite: SQLiteSvg('size-20'),
+		MySQL: MySQLSvg('size-20'),
+		PostgreSQL: PostgreSQLSvg('size-20'),
+		MongoDB: MongoDBSvg('size-20'),
+		MariaDB: MariaDBSvg('size-20'),
+		MSSQL: MicrosoftSqlServerSvg('size-20'),
+		SurrealDB: SurrealSvg('size-20')
 	};
 
 	let connectionName = $state('');
@@ -36,8 +40,12 @@
 				return 'postgres://username:password@localhost:5432';
 			case 'MongoDB':
 				return 'mongodb://username:password@localhost:27017';
-			case 'Oracle':
-				return 'oracle://username:password@localhost:1521';
+			case 'MariaDB':
+				return 'mysql://username:password@localhost:3306';
+			case 'MSSQL':
+				return 'mssql://username:password@localhost:1433';
+			case 'SurrealDB':
+				return 'ws://localhost:8000/rpc';
 			default:
 				return '';
 		}
@@ -71,30 +79,24 @@
 					await invoke('test_sqlite_connection', { url: url });
 					break;
 				case 'MySQL':
+					await invoke('test_mysql_connection', { url: url });
 					break;
 				case 'PostgreSQL':
-					try {
-						await invoke('test_postgres_connection', { url: url });
-					} catch (error) {
-						console.error('Connection error:', error);
-					}
+					await invoke('test_postgres_connection', { url: url });
 					break;
 				case 'MongoDB':
-					try {
-						const result = await invoke('test_mongo_connection', { url: url });
-						console.log('Connection result:', result);
-					} catch (error) {
-						console.error('Connection error:', error);
-					}
+					await invoke('test_mongo_connection', { url: url });
 					break;
-				case 'Oracle':
-					try {
-						const result = await invoke('test_oracle_connection', { url: url });
-						console.log('Connection result:', result);
-					} catch (error) {
-						console.error('Connection error:', error);
-					}
+				case 'MariaDB':
+					await invoke('test_maria_connection', { url: url });
 					break;
+				case 'MSSQL':
+					await invoke('test_mssql_connection', { url: url });
+					break;
+				case 'SurrealDB':
+					await invoke('test_surrealdb_connection', { url: url });
+					break;
+
 				default:
 					break;
 			}
@@ -122,6 +124,19 @@
 					}
 					break;
 				case 'MySQL':
+					if (user?.id) {
+						await invoke('save_mysql_connection', {
+							user_id: user.id,
+							url: url,
+							connectionName: connectionName
+						});
+					} else {
+						await invoke('save_mysql_connection', {
+							user_id: null,
+							url: url,
+							connectionName: connectionName
+						});
+					}
 					break;
 				case 'PostgreSQL':
 					if (user?.id) {
@@ -155,15 +170,46 @@
 						console.log(result);
 					}
 					break;
-				case 'Oracle':
+				case 'MariaDB':
 					if (user?.id) {
-						const result = await invoke('save_oracle_connection', {
+						await invoke('save_maria_connection', {
 							user_id: user.id,
 							url: url,
 							connectionName: connectionName
 						});
 					} else {
-						const result = await invoke('save_oracle_connection', {
+						await invoke('save_maria_connection', {
+							user_id: null,
+							url: url,
+							connectionName: connectionName
+						});
+					}
+
+					break;
+				case 'MSSQL':
+					if (user?.id) {
+						await invoke('save_mssql_connection', {
+							user_id: user.id,
+							url: url,
+							connectionName: connectionName
+						});
+					} else {
+						await invoke('save_mssql_connection', {
+							user_id: null,
+							url: url,
+							connectionName: connectionName
+						});
+					}
+					break;
+				case 'SurrealDB':
+					if (user?.id) {
+						await invoke('save_surrealdb_connection', {
+							user_id: user.id,
+							url: url,
+							connectionName: connectionName
+						});
+					} else {
+						await invoke('save_surrealdb_connection', {
 							user_id: null,
 							url: url,
 							connectionName: connectionName

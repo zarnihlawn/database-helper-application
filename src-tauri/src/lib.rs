@@ -2,6 +2,30 @@
 
 pub mod modules;
 
+use database_connection::app_database_connection::{
+    app_database_init, get_content_type, get_database_connection, get_datasource,
+    get_user_by_email, signup_user,
+};
+use database_connection::maria_database_connection::{
+    get_database_from_maria, save_maria_connection, test_maria_connection,
+};
+use database_connection::mongo_database_connection::save_mongo_connection;
+use database_connection::mssql_database_connection::{
+    get_database_from_mssql, save_mssql_connection, test_mssql_connection,
+};
+use database_connection::mysql_database_connection::{
+    get_database_from_mysql, save_mysql_connection, test_mysql_connection,
+};
+use database_connection::postgres_database_connection::{
+    get_database_from_postgres, save_postgres_connection, test_postgres_connection,
+};
+use database_connection::sqlite_database_connection::{
+    get_database_from_sqlite, save_sqlite_connection, test_sqlite_connection,
+};
+use database_connection::surreal_database_connection::{
+    save_surrealdb_connection, test_surrealdb_connection,
+};
+
 use crate::modules::bcrypt_controller::encrypt_bcrypt;
 use crate::modules::docker_controller::{
     check_docker_status, delete_docker_container, delete_docker_image, get_all_docker_containers,
@@ -16,21 +40,9 @@ use crate::modules::window_controller::{
 pub mod models;
 
 pub mod database_connection;
-use crate::database_connection::app_database_connection::{
-    app_database_init, get_content_type, get_database_connection, get_datasource,
-    get_user_by_email, signup_user,
-};
+
 use crate::database_connection::mongo_database_connection::{
-    get_database_from_mongo, save_mongo_connection, test_mongo_connection,
-};
-use crate::database_connection::oracle_database_connection::{
-    get_database_from_oracle, save_oracle_connection, test_oracle_connection,
-};
-use crate::database_connection::postgres_database_connection::{
-    get_database_from_postgres, save_postgres_connection, test_postgres_connection,
-};
-use crate::database_connection::sqlite_database_connection::{
-    get_database_from_sqlite, save_sqlite_connection, test_sqlite_connection,
+    get_database_from_mongo, test_mongo_connection,
 };
 
 pub mod dialog;
@@ -94,10 +106,21 @@ pub fn run() {
             test_mongo_connection,
             save_mongo_connection,
             get_database_from_mongo,
-            // Oracle Database
-            test_oracle_connection,
-            save_oracle_connection,
-            get_database_from_oracle,
+            // Mysql Database
+            test_mysql_connection,
+            save_mysql_connection,
+            get_database_from_mysql,
+            // Maria Database
+            test_maria_connection,
+            save_maria_connection,
+            get_database_from_maria,
+            // MSSQL Database
+            test_mssql_connection,
+            save_mssql_connection,
+            get_database_from_mssql,
+            // Surreal Database
+            test_surrealdb_connection,
+            save_surrealdb_connection,
             // Dialogs
             open_sqlite_file_selection_dialog,
         ])

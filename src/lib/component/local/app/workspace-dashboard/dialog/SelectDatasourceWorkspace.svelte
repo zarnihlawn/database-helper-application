@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
+	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
 	import { MongoDBSvg } from '$lib/asset/image/svg/mongodb-svg';
 	import { MySQLSvg } from '$lib/asset/image/svg/mysql-svg';
-	import { OracleSvg } from '$lib/asset/image/svg/oracle-svg';
 	import { PostgreSQLSvg } from '$lib/asset/image/svg/postgresql-svg';
 	import { SQLiteSvg } from '$lib/asset/image/svg/sqlite-svg';
+	import { SurrealSvg } from '$lib/asset/image/svg/surreal-svg';
 	import type { DatasourceInterface } from '$lib/model/interface/schema.interface';
 	import FieldConnectingDatasourceWorkspace from './FieldConnectingDatasourceWorkspace.svelte';
 
@@ -12,13 +14,14 @@
 		onClose: () => void;
 	}>();
 
-
 	const svgMap: Record<string, string> = {
 		SQLite: SQLiteSvg('size-20'),
 		MySQL: MySQLSvg('size-20'),
 		PostgreSQL: PostgreSQLSvg('size-20'),
 		MongoDB: MongoDBSvg('size-20'),
-		Oracle: OracleSvg('size-20')
+		MariaDB: MariaDBSvg('size-20'),
+		MSSQL: MicrosoftSqlServerSvg('size-20'),
+		SurrealDB: SurrealSvg('size-20')
 	};
 
 	let selectedDatasource: DatasourceInterface | null = $state(null);

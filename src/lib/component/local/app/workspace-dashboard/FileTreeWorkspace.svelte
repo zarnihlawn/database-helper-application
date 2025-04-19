@@ -2,7 +2,6 @@
 	import { ColumnSvg } from '$lib/asset/image/svg/column-svg';
 	import { MongoDBSvg } from '$lib/asset/image/svg/mongodb-svg';
 	import { MySQLSvg } from '$lib/asset/image/svg/mysql-svg';
-	import { OracleSvg } from '$lib/asset/image/svg/oracle-svg';
 	import { PostgreSQLSvg } from '$lib/asset/image/svg/postgresql-svg';
 	import { SQLiteSvg } from '$lib/asset/image/svg/sqlite-svg';
 	import { TableSvg } from '$lib/asset/image/svg/table-svg';
@@ -19,6 +18,9 @@
 		TableInfo as PostgresTableInfo
 	} from '$lib/model/interface/postgres.interface';
 	import { FileSvg } from '$lib/asset/image/svg/file-svg';
+	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
+	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
+	import { SurrealSvg } from '$lib/asset/image/svg/surreal-svg';
 
 	let { databaseConnection, datasource } = $props<{
 		databaseConnection: DatabaseConnectionInterface[];
@@ -30,7 +32,9 @@
 		MySQL: MySQLSvg('size-5'),
 		PostgreSQL: PostgreSQLSvg('size-5'),
 		MongoDB: MongoDBSvg('size-5'),
-		Oracle: OracleSvg('size-5')
+		MariaDB: MariaDBSvg('size-5'),
+		MSSQL: MicrosoftSqlServerSvg('size-5'),
+		SurrealDB: SurrealSvg('size-5')
 	};
 
 	async function getSQLiteTablesAndColumns(url: string): Promise<TableInfoInterface[]> {
