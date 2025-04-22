@@ -24,6 +24,13 @@
 	import type { DatabaseInfo } from '$lib/model/interface/mssql.interface';
 	import { DatabaseSvg } from '$lib/asset/image/svg/database-svg';
 
+	interface DatabaseObjects {
+		tables: string[];
+		views: string[];
+		functions: string[];
+		sequences: string[];
+	}
+
 	let { databaseConnection, datasource } = $props<{
 		databaseConnection: DatabaseConnectionInterface[];
 		datasource: DatasourceInterface[];
@@ -92,23 +99,20 @@
 		}
 	}
 
-	async function getPostgreSQLTablesAndColumns(url: string): Promise<TableInfoInterface[]> {
+	async function getPostgreSQLTablesAndColumns(
+		url: string
+	): Promise<Record<string, Record<string, DatabaseObjects>>> {
 		try {
-			const result = await invoke<DatabaseMetadata>('get_database_from_postgres', {
-				url: url
-			});
-			console.log('PostgreSQL metadata:', result);
-			// Transform the DatabaseMetadata into TableInfoInterface[]
-			return result.tables.map((table: PostgresTableInfo) => ({
-				name: table.name,
-				columns: table.columns.map((column) => ({
-					name: column.name,
-					data_type: column.data_type
-				}))
-			}));
+			const result: Record<string, Record<string, DatabaseObjects>> = await invoke(
+				'get_database_from_postgres',
+				{
+					url: url
+				}
+			);
+			return result;
 		} catch (error) {
 			console.error('Error fetching PostgreSQL info:', error);
-			return []; // Return an empty array in case of error
+			return {};
 		}
 	}
 
@@ -238,23 +242,108 @@
 									{/await}
 								{:else if source.name === 'PostgreSQL'}
 									{#await getPostgreSQLTablesAndColumns(database.url)}
-										<p>Loading tables and columns...</p>
-									{:then tableInfos}
+										<p>Loading database information...</p>
+									{:then databaseInfo}
 										<ul>
-											{#each tableInfos as table}
+											{#each Object.entries(databaseInfo) as [dbName, schemas]}
 												<li>
 													<details>
 														<summary>
-															{@html TableSvg('size-5 text-info')}
-															{table.name}
+															{@html DatabaseSvg('size-5 text-info')}
+															{dbName}
 														</summary>
 														<ul>
-															{#each table.columns as column}
+															{#each Object.entries(schemas) as [schemaName, objects]}
 																<li>
-																	<div>
-																		{@html ColumnSvg('size-5 text-info')}
-																		{column.name}
-																	</div>
+																	<details>
+																		<summary>
+																			{@html SchemaSvg('size-5 text-info')}
+																			{schemaName}
+																		</summary>
+																		<ul>
+																			<li>
+																				<details>
+																					<summary>
+																						{@html FolderSvg('size-5 text-info')}
+																						Tables
+																					</summary>
+																					<ul>
+																						{#each objects.tables as tableName}
+																							<li>
+																								<details>
+																									<summary>
+																										{@html TableSvg('size-5 text-info')}
+																										{tableName}
+																									</summary>
+																								</details>
+																							</li>
+																						{/each}
+																					</ul>
+																				</details>
+																			</li>
+
+																			<li>
+																				<details>
+																					<summary>
+																						{@html FolderSvg('size-5 text-info')}
+																						View
+																					</summary>
+																					<ul>
+																						{#each objects.views as viewName}
+																							<li>
+																								<details>
+																									<summary>
+																										{@html TableSvg('size-5 text-info')}
+																										{viewName}
+																									</summary>
+																								</details>
+																							</li>
+																						{/each}
+																					</ul>
+																				</details>
+																			</li>
+																			<li>
+																				<details>
+																					<summary>
+																						{@html FolderSvg('size-5 text-info')}
+																						Functions
+																					</summary>
+																					<ul>
+																						{#each objects.functions as functionName}
+																							<li>
+																								<details>
+																									<summary>
+																										{@html TableSvg('size-5 text-info')}
+																										{functionName}
+																									</summary>
+																								</details>
+																							</li>
+																						{/each}
+																					</ul>
+																				</details>
+																			</li>
+																			<li>
+																				<details>
+																					<summary>
+																						{@html FolderSvg('size-5 text-info')}
+																						Sequence
+																					</summary>
+																					<ul>
+																						{#each objects.sequences as sequenceName}
+																							<li>
+																								<details>
+																									<summary>
+																										{@html TableSvg('size-5 text-info')}
+																										{sequenceName}
+																									</summary>
+																								</details>
+																							</li>
+																						{/each}
+																					</ul>
+																				</details>
+																			</li>
+																		</ul>
+																	</details>
 																</li>
 															{/each}
 														</ul>
@@ -263,7 +352,7 @@
 											{/each}
 										</ul>
 									{:catch error}
-										<p class="text-error">Failed to load tables and columns: {error}</p>
+										<p class="text-error">Failed to load database information: {error}</p>
 									{/await}
 								{:else if source.name === 'MongoDB'}
 									{#await getMongoDBCollections(database.url)}
