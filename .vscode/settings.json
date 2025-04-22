@@ -1,12 +1,25 @@
 {
   "workbench.colorCustomizations": {
+    "activityBar.background": "#ffffff",
+    "activityBar.foreground": "#15202b",
     "activityBar.activeBorder": "#d74c1d",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#df9f9f",
+    "activityBarBadge.foreground": "#15202b",
+    "titleBar.activeBackground": "#fed2e2",
+    "titleBar.activeForeground": "#15202b",
+    "titleBar.inactiveBackground": "#fed2e299",
+    "titleBar.inactiveForeground": "#15202b99",
     "statusBarItem.warningBackground": "#d74c1d",
     "statusBarItem.warningForeground": "#ffffff",
     "statusBarItem.warningHoverBackground": "#d74c1d",
     "statusBarItem.warningHoverForeground": "#ffffff90",
+    "statusBarItem.remoteBackground": "#fed2e2",
+    "statusBarItem.remoteForeground": "#15202b",
     "statusBarItem.remoteHoverBackground": "#d74c1d",
     "statusBarItem.remoteHoverForeground": "#ffffff90",
+    "statusBar.background": "#fed2e2",
+    "statusBar.foreground": "#15202b",
     "statusBar.noFolderBackground": "#d74c1d",
     "statusBar.noFolderForeground": "#ffffff",
     "statusBar.noFolderBorder": "#d74c1d",
@@ -27,7 +40,11 @@
     "tab.activeBorderTop": "#e4592a",
     "pickerGroup.foreground": "#e4592a",
     "list.activeSelectionBackground": "#d74c1d4d",
-    "panelTitle.activeBorder": "#e4592a"
+    "panelTitle.activeBorder": "#e4592a",
+    "activityBar.activeBackground": "#ffffff",
+    "commandCenter.border": "#15202b99",
+    "sash.hoverBorder": "#ffffff",
+    "statusBarItem.hoverBackground": "#fda0c2"
   },
   "window.title": "database-helper-application",
   "projectColors.name": "database-helper-application",
@@ -37,5 +54,6 @@
   "projectColors.isStatusBarColored": true,
   "projectColors.isProjectNameColored": true,
   "projectColors.isActiveItemsColored": true,
-  "projectColors.setWindowTitle": true
+  "projectColors.setWindowTitle": true,
+  "peacock.color": "#FED2E2"
 }

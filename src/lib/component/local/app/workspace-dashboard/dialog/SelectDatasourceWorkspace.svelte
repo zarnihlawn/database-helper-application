@@ -5,7 +5,6 @@
 	import { MySQLSvg } from '$lib/asset/image/svg/mysql-svg';
 	import { PostgreSQLSvg } from '$lib/asset/image/svg/postgresql-svg';
 	import { SQLiteSvg } from '$lib/asset/image/svg/sqlite-svg';
-	import { SurrealSvg } from '$lib/asset/image/svg/surreal-svg';
 	import type { DatasourceInterface } from '$lib/model/interface/schema.interface';
 	import FieldConnectingDatasourceWorkspace from './FieldConnectingDatasourceWorkspace.svelte';
 
@@ -21,7 +20,6 @@
 		MongoDB: MongoDBSvg('size-20'),
 		MariaDB: MariaDBSvg('size-20'),
 		MSSQL: MicrosoftSqlServerSvg('size-20'),
-		SurrealDB: SurrealSvg('size-20')
 	};
 
 	let selectedDatasource: DatasourceInterface | null = $state(null);

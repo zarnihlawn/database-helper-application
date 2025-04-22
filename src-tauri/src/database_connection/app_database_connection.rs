@@ -213,7 +213,6 @@ async fn seed_database() {
         ("MySQL", "A broadly used open-source system for managing relational databases."),
         ("MSSQL", "Microsoft SQL Server, a widely implemented relational database platform."),
         ("MariaDB", "An open-source relational database system driven by community innovation."),
-        ("SurrealDB", "An innovative open-source database unifying SQL and NoSQL paradigms for scalable solutions.")
     ];
 
     for (db_type, db_desc) in datasource_inserts {

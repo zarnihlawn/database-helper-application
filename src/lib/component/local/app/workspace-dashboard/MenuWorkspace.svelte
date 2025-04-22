@@ -5,6 +5,7 @@
 	import { RemoveSvg } from '$lib/asset/image/svg/remove-svg';
 	import type { DatasourceInterface } from '$lib/model/interface/schema.interface';
 	import WorkspaceSelectDatasource from './dialog/SelectDatasourceWorkspace.svelte';
+	import { invoke } from '@tauri-apps/api/core';
 
 	let { datasource } = $props<{
 		datasource: DatasourceInterface[];
@@ -14,6 +15,10 @@
 
 	function handleAddClick() {
 		showSelectionDialog = true;
+	}
+
+	function handleRefreshClick() {
+		invoke('refresh_window');
 	}
 
 	function handleDialogClose() {
@@ -29,7 +34,7 @@
 			</button>
 		</div>
 		<div class="tooltip tooltip-right tooltip-warning" data-tip="Refresh all data sources">
-			<button class="btn text-warning join-item">
+			<button class="btn text-warning join-item" onclick={handleRefreshClick}>
 				{@html RefreshSvg}
 			</button>
 		</div>

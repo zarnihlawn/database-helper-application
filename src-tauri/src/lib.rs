@@ -22,9 +22,6 @@ use database_connection::postgres_database_connection::{
 use database_connection::sqlite_database_connection::{
     get_database_from_sqlite, save_sqlite_connection, test_sqlite_connection,
 };
-use database_connection::surreal_database_connection::{
-    save_surrealdb_connection, test_surrealdb_connection,
-};
 
 use crate::modules::bcrypt_controller::encrypt_bcrypt;
 use crate::modules::docker_controller::{
@@ -35,6 +32,7 @@ use crate::modules::docker_controller::{
 use crate::modules::terminal_controller::execute_shell_command;
 use crate::modules::window_controller::{
     default_window_application, exit_application, maximize_application, minimize_application,
+    refresh_window,
 };
 
 pub mod models;
@@ -70,6 +68,7 @@ pub fn run() {
             minimize_application,
             maximize_application,
             default_window_application,
+            refresh_window,
             // docker Controller
             check_docker_status,
             start_docker_service,
@@ -118,9 +117,6 @@ pub fn run() {
             test_mssql_connection,
             save_mssql_connection,
             get_database_from_mssql,
-            // Surreal Database
-            test_surrealdb_connection,
-            save_surrealdb_connection,
             // Dialogs
             open_sqlite_file_selection_dialog,
         ])

@@ -20,7 +20,9 @@
 	import { FileSvg } from '$lib/asset/image/svg/file-svg';
 	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
 	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
-	import { SurrealSvg } from '$lib/asset/image/svg/surreal-svg';
+	import { SchemaSvg } from '$lib/asset/image/svg/schema-svg';
+	import type { DatabaseInfo } from '$lib/model/interface/mssql.interface';
+	import { DatabaseSvg } from '$lib/asset/image/svg/database-svg';
 
 	let { databaseConnection, datasource } = $props<{
 		databaseConnection: DatabaseConnectionInterface[];
@@ -33,8 +35,7 @@
 		PostgreSQL: PostgreSQLSvg('size-5'),
 		MongoDB: MongoDBSvg('size-5'),
 		MariaDB: MariaDBSvg('size-5'),
-		MSSQL: MicrosoftSqlServerSvg('size-5'),
-		SurrealDB: SurrealSvg('size-5')
+		MSSQL: MicrosoftSqlServerSvg('size-5')
 	};
 
 	async function getSQLiteTablesAndColumns(url: string): Promise<TableInfoInterface[]> {
@@ -45,6 +46,48 @@
 			return result;
 		} catch (error) {
 			console.error('Error fetching SQLite info:', error);
+			return []; // Return an empty array in case of error
+		}
+	}
+
+	async function getMssqlTablesAndColumns(
+		url: string
+	): Promise<
+		{ database_name: string; schemas: { schema_name: string; tables: TableInfoInterface[] }[] }[]
+	> {
+		try {
+			const result = await invoke<DatabaseInfo[]>('get_database_from_mssql', {
+				url: url
+			});
+
+			console.log('MSSQL metadata:', result);
+
+			// Transform the data to group tables by database and then by schema
+			const databaseInfos: {
+				database_name: string;
+				schemas: { schema_name: string; tables: TableInfoInterface[] }[];
+			}[] = [];
+
+			for (const database of result) {
+				const schemas: { schema_name: string; tables: TableInfoInterface[] }[] = [];
+				for (const schema of database.schemas) {
+					const tables: TableInfoInterface[] = schema.tables.map(
+						(table: { name: string; columns: { name: string; data_type: string }[] }) => ({
+							name: table.name,
+							columns: table.columns.map((column: { name: string; data_type: string }) => ({
+								name: column.name,
+								data_type: column.data_type
+							}))
+						})
+					);
+					schemas.push({ schema_name: schema.name, tables: tables });
+				}
+				databaseInfos.push({ database_name: database.name, schemas: schemas });
+			}
+
+			return databaseInfos;
+		} catch (error) {
+			console.error('Error fetching MSSQL info:', error);
 			return []; // Return an empty array in case of error
 		}
 	}
@@ -97,6 +140,52 @@
 			return groupedCollections;
 		} catch (error) {
 			console.error('Error fetching MongoDB info:', error);
+			return [];
+		}
+	}
+
+	async function getMySQLTablesAndColumns(
+		url: string
+	): Promise<{ schema_name: string; tables: TableInfoInterface[] }[]> {
+		try {
+			const result = await invoke<
+				Record<
+					string,
+					Record<
+						string,
+						{ tables: { name: string; columns: { name: string; data_type: string }[] }[] }
+					>
+				>
+			>('get_database_from_mysql', {
+				url: url
+			});
+
+			console.log('MySQL metadata:', result);
+
+			// Transform the data to group tables by schema
+			const schemaInfos: { schema_name: string; tables: TableInfoInterface[] }[] = [];
+			for (const [schema, schemaData] of Object.entries(result)) {
+				const tables: TableInfoInterface[] = [];
+				for (const [_, dbObjects] of Object.entries(schemaData)) {
+					for (const table of dbObjects.tables) {
+						tables.push({
+							name: table.name,
+							columns: table.columns.map((column) => ({
+								name: column.name,
+								data_type: column.data_type
+							}))
+						});
+					}
+				}
+				schemaInfos.push({
+					schema_name: schema,
+					tables: tables
+				});
+			}
+
+			return schemaInfos;
+		} catch (error) {
+			console.error('Error fetching MySQL info:', error);
 			return [];
 		}
 	}
@@ -204,6 +293,141 @@
 										</ul>
 									{:catch error}
 										<p class="text-error">Failed to load collections: {error}</p>
+									{/await}
+								{:else if source.name === 'MySQL'}
+									{#await getMySQLTablesAndColumns(database.url)}
+										<p>Loading tables and columns...</p>
+									{:then schemaInfos}
+										<ul>
+											{#each schemaInfos as schema}
+												<li>
+													<details>
+														<summary>
+															{@html SchemaSvg('size-5 text-warning')}
+															{schema.schema_name}
+														</summary>
+														<ul>
+															{#each schema.tables as table}
+																<li>
+																	<details>
+																		<summary>
+																			{@html TableSvg('size-5 text-warning')}
+																			{table.name}
+																		</summary>
+																		<ul>
+																			{#each table.columns as column}
+																				<li>
+																					<div>
+																						{@html ColumnSvg('size-5 text-warning')}
+																						{column.name} ({column.data_type})
+																					</div>
+																				</li>
+																			{/each}
+																		</ul>
+																	</details>
+																</li>
+															{/each}
+														</ul>
+													</details>
+												</li>
+											{/each}
+										</ul>
+									{:catch error}
+										<p class="text-error">Failed to load tables and columns: {error}</p>
+									{/await}
+								{:else if source.name === 'MariaDB'}
+									{#await getMySQLTablesAndColumns(database.url)}
+										<p>Loading tables and columns...</p>
+									{:then schemaInfos}
+										<ul>
+											{#each schemaInfos as schema}
+												<li>
+													<details>
+														<summary>
+															{@html SchemaSvg('size-5 text-warning')}
+															{schema.schema_name}
+														</summary>
+														<ul>
+															{#each schema.tables as table}
+																<li>
+																	<details>
+																		<summary>
+																			{@html TableSvg('size-5 text-warning')}
+																			{table.name}
+																		</summary>
+																		<ul>
+																			{#each table.columns as column}
+																				<li>
+																					<div>
+																						{@html ColumnSvg('size-5 text-warning')}
+																						{column.name} ({column.data_type})
+																					</div>
+																				</li>
+																			{/each}
+																		</ul>
+																	</details>
+																</li>
+															{/each}
+														</ul>
+													</details>
+												</li>
+											{/each}
+										</ul>
+									{:catch error}
+										<p class="text-error">Failed to load tables and columns: {error}</p>
+									{/await}
+								{:else if source.name === 'MSSQL'}
+									{#await getMssqlTablesAndColumns(database.url)}
+										<p>Loading tables and columns...</p>
+									{:then databaseInfos}
+										{#each databaseInfos as dbInfo (dbInfo.database_name)}
+											<ul>
+												<li>
+													<details>
+														<summary>
+															{@html DatabaseSvg('size-5 text-warning')}
+															{dbInfo.database_name}
+														</summary>
+														<ul>
+															{#each dbInfo.schemas as schema (schema.schema_name)}
+																<li>
+																	<details>
+																		<summary>
+																			{@html SchemaSvg('size-5 text-warning')}
+																			{schema.schema_name}
+																		</summary>
+																		<ul>
+																			{#each schema.tables as table (table.name)}
+																				<li>
+																					<details>
+																						<summary>
+																							{@html TableSvg('size-5 text-warning')}
+																							{table.name}
+																						</summary>
+																						<ul>
+																							{#each table.columns as column (column.name)}
+																								<li>
+																									<div>
+																										{@html ColumnSvg('size-5 text-warning')}
+																										{column.name} ({column.data_type})
+																									</div>
+																								</li>
+																							{/each}
+																						</ul>
+																					</details>
+																				</li>
+																			{/each}
+																		</ul>
+																	</details>
+																</li>
+															{/each}
+														</ul>
+													</details>
+												</li>
+											</ul>
+										{/each}
+									{:catch error}
+										<p class="text-error">Failed to load tables and columns: {error}</p>
 									{/await}
 								{/if}
 							</details>

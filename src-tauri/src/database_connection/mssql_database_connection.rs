@@ -1,10 +1,35 @@
 use super::app_database_connection::get_db_path;
-use crate::models::structs::erd_struct::{ColumnInfo, TableInfo};
+use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
 use tiberius::{error::Error, AuthMethod, Client, Config};
 use tokio::net::TcpStream;
 use tokio_util::compat::TokioAsyncWriteCompatExt;
 use url::Url;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ColumnInfo {
+    name: String,
+    data_type: String,
+    is_nullable: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TableInfo {
+    name: String,
+    columns: Vec<ColumnInfo>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SchemaInfo {
+    name: String,
+    tables: Vec<TableInfo>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DatabaseInfo {
+    name: String,
+    schemas: Vec<SchemaInfo>,
+}
 
 #[tauri::command]
 pub async fn test_mssql_connection(url: String) -> Result<String, String> {
@@ -108,7 +133,7 @@ fn parse_mssql_url(url: &str) -> Result<(String, u16, String, String), String> {
 }
 
 #[tauri::command]
-pub async fn get_database_from_mssql(url: String) -> Result<Vec<TableInfo>, String> {
+pub async fn get_database_from_mssql(url: String) -> Result<Vec<DatabaseInfo>, String> {
     let (host, port, username, password) = parse_mssql_url(&url)?;
 
     // Create MSSQL connection
@@ -127,63 +152,108 @@ pub async fn get_database_from_mssql(url: String) -> Result<Vec<TableInfo>, Stri
         .await
         .map_err(|e| e.to_string())?;
 
-    // Get all tables
-    let mut tables = Vec::new();
-    let rows = client
-        .query(
-            "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'",
-            &[],
-        )
+    // Get all databases (including system databases)
+    let databases = client
+        .query("SELECT name FROM sys.databases WHERE state = 0", &[]) // state = 0 means online databases
         .await
         .map_err(|e| e.to_string())?
         .into_first_result()
         .await
         .map_err(|e| e.to_string())?;
 
-    for row in rows {
-        let schema: &str = row.get(0).ok_or("Failed to get schema")?;
-        let table_name: &str = row.get(1).ok_or("Failed to get table name")?;
+    let mut database_infos = Vec::new();
+    for db_row in databases {
+        let db_name: &str = db_row.get(0).ok_or("Failed to get database name")?;
 
-        // Get columns for each table
-        let mut columns = Vec::new();
-        let col_rows = client
-            .query(
-                &format!(
-                    "SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH 
-                     FROM INFORMATION_SCHEMA.COLUMNS 
-                     WHERE TABLE_SCHEMA = '{}' AND TABLE_NAME = '{}'",
-                    schema, table_name
-                ),
-                &[],
-            )
+        // Switch to this database
+        client
+            .query(&format!("USE [{}]", db_name), &[])
+            .await
+            .map_err(|e| e.to_string())?;
+
+        // Get all schemas (including system schemas)
+        let schemas = client
+            .query("SELECT name FROM sys.schemas", &[])
             .await
             .map_err(|e| e.to_string())?
             .into_first_result()
             .await
             .map_err(|e| e.to_string())?;
 
-        for col_row in col_rows {
-            let column_name: &str = col_row.get(0).ok_or("Failed to get column name")?;
-            let data_type: &str = col_row.get(1).ok_or("Failed to get data type")?;
-            let max_length: Option<i32> = col_row.get(2);
+        let mut schema_infos = Vec::new();
+        for schema_row in schemas {
+            let schema_name: &str = schema_row.get(0).ok_or("Failed to get schema name")?;
 
-            let data_type_with_length = if let Some(len) = max_length {
-                format!("{}({})", data_type, len)
-            } else {
-                data_type.to_string()
-            };
+            // Get all tables for this schema
+            let tables = client
+                .query(
+                    &format!(
+                        "SELECT t.name 
+                         FROM sys.tables t 
+                         INNER JOIN sys.schemas s ON t.schema_id = s.schema_id 
+                         WHERE s.name = '{}'",
+                        schema_name
+                    ),
+                    &[],
+                )
+                .await
+                .map_err(|e| e.to_string())?
+                .into_first_result()
+                .await
+                .map_err(|e| e.to_string())?;
 
-            columns.push(ColumnInfo {
-                name: column_name.to_string(),
-                data_type: data_type_with_length,
+            let mut table_infos = Vec::new();
+            for table_row in tables {
+                let table_name: &str = table_row.get(0).ok_or("Failed to get table name")?;
+
+                // Get all columns for this table
+                let columns = client
+                    .query(
+                        &format!(
+                            "SELECT c.name, t.name as data_type, c.is_nullable
+                             FROM sys.columns c
+                             INNER JOIN sys.types t ON c.user_type_id = t.user_type_id
+                             WHERE OBJECT_ID = OBJECT_ID('{}.{}')",
+                            schema_name, table_name
+                        ),
+                        &[],
+                    )
+                    .await
+                    .map_err(|e| e.to_string())?
+                    .into_first_result()
+                    .await
+                    .map_err(|e| e.to_string())?;
+
+                let mut column_infos = Vec::new();
+                for col_row in columns {
+                    let column_name: &str = col_row.get(0).ok_or("Failed to get column name")?;
+                    let data_type: &str = col_row.get(1).ok_or("Failed to get data type")?;
+                    let is_nullable: bool = col_row.get(2).ok_or("Failed to get is_nullable")?;
+
+                    column_infos.push(ColumnInfo {
+                        name: column_name.to_string(),
+                        data_type: data_type.to_string(),
+                        is_nullable: if is_nullable { "YES" } else { "NO" }.to_string(),
+                    });
+                }
+
+                table_infos.push(TableInfo {
+                    name: table_name.to_string(),
+                    columns: column_infos,
+                });
+            }
+
+            schema_infos.push(SchemaInfo {
+                name: schema_name.to_string(),
+                tables: table_infos,
             });
         }
 
-        tables.push(TableInfo {
-            name: format!("{}.{}", schema, table_name),
-            columns,
+        database_infos.push(DatabaseInfo {
+            name: db_name.to_string(),
+            schemas: schema_infos,
         });
     }
 
-    Ok(tables)
+    Ok(database_infos)
 }

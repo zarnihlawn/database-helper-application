@@ -5,7 +5,6 @@
 	import { MySQLSvg } from '$lib/asset/image/svg/mysql-svg';
 	import { PostgreSQLSvg } from '$lib/asset/image/svg/postgresql-svg';
 	import { SQLiteSvg } from '$lib/asset/image/svg/sqlite-svg';
-	import { SurrealSvg } from '$lib/asset/image/svg/surreal-svg';
 	import type { DatasourceInterface } from '$lib/model/interface/schema.interface';
 	import { userState } from '$lib/store/state/user.state.svelte';
 	import { invoke } from '@tauri-apps/api/core';
@@ -22,8 +21,7 @@
 		PostgreSQL: PostgreSQLSvg('size-20'),
 		MongoDB: MongoDBSvg('size-20'),
 		MariaDB: MariaDBSvg('size-20'),
-		MSSQL: MicrosoftSqlServerSvg('size-20'),
-		SurrealDB: SurrealSvg('size-20')
+		MSSQL: MicrosoftSqlServerSvg('size-20')
 	};
 
 	let connectionName = $state('');
@@ -44,8 +42,7 @@
 				return 'mysql://username:password@localhost:3306';
 			case 'MSSQL':
 				return 'mssql://username:password@localhost:1433';
-			case 'SurrealDB':
-				return 'ws://localhost:8000/rpc';
+
 			default:
 				return '';
 		}
@@ -92,9 +89,6 @@
 					break;
 				case 'MSSQL':
 					await invoke('test_mssql_connection', { url: url });
-					break;
-				case 'SurrealDB':
-					await invoke('test_surrealdb_connection', { url: url });
 					break;
 
 				default:
@@ -201,21 +195,7 @@
 						});
 					}
 					break;
-				case 'SurrealDB':
-					if (user?.id) {
-						await invoke('save_surrealdb_connection', {
-							user_id: user.id,
-							url: url,
-							connectionName: connectionName
-						});
-					} else {
-						await invoke('save_surrealdb_connection', {
-							user_id: null,
-							url: url,
-							connectionName: connectionName
-						});
-					}
-					break;
+
 				default:
 					break;
 			}

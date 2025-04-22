@@ -13,7 +13,6 @@
 	import { invoke } from '@tauri-apps/api/core';
 	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
 	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
-	import { SurrealSvg } from '$lib/asset/image/svg/surreal-svg';
 
 	let { datasource } = $props<{ datasource: DatasourceInterface[] }>();
 
@@ -27,7 +26,6 @@
 		MongoDB: MongoDBSvg('size-20'),
 		MariaDB: MariaDBSvg('size-20'),
 		MSSQL: MicrosoftSqlServerSvg('size-20'),
-		SurrealDB: SurrealSvg('size-20')
 	};
 
 	onMount(() => {

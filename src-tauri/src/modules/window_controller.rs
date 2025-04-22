@@ -29,6 +29,15 @@ pub async fn maximize_application<R: Runtime>(app: AppHandle<R>) -> Result<(), S
 }
 
 #[tauri::command]
+pub fn refresh_window<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.eval("window.location.reload();");
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn default_window_application<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("main") {
         if window.is_minimized().unwrap_or(false) {
