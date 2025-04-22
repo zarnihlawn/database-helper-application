@@ -3,11 +3,11 @@
 pub mod modules;
 
 use database_connection::app_database_connection::{
-    app_database_init, get_content_type, get_database_connection, get_datasource,
-    get_user_by_email, signup_user,
+    app_database_init, create_file_for_database, get_content_type, get_database_connection,
+    get_datasource, get_file_collection, get_user_by_email, signup_user, store_file_with_database,
 };
 use database_connection::maria_database_connection::{
-    get_database_from_maria, save_maria_connection, test_maria_connection,
+    save_maria_connection, test_maria_connection,
 };
 use database_connection::mongo_database_connection::save_mongo_connection;
 use database_connection::mssql_database_connection::{
@@ -93,6 +93,9 @@ pub fn run() {
             get_datasource,
             get_content_type,
             get_database_connection,
+            create_file_for_database,
+            store_file_with_database,
+            get_file_collection,
             // Sqlite Database
             test_sqlite_connection,
             save_sqlite_connection,
@@ -112,7 +115,6 @@ pub fn run() {
             // Maria Database
             test_maria_connection,
             save_maria_connection,
-            get_database_from_maria,
             // MSSQL Database
             test_mssql_connection,
             save_mssql_connection,

@@ -13,6 +13,7 @@
 	import { invoke } from '@tauri-apps/api/core';
 	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
 	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
+	import QueryFileCollectionWorkspace from './component/QueryFileCollectionWorkspace.svelte';
 
 	let { datasource } = $props<{ datasource: DatasourceInterface[] }>();
 
@@ -25,7 +26,7 @@
 		PostgreSQL: PostgreSQLSvg('size-20'),
 		MongoDB: MongoDBSvg('size-20'),
 		MariaDB: MariaDBSvg('size-20'),
-		MSSQL: MicrosoftSqlServerSvg('size-20'),
+		MSSQL: MicrosoftSqlServerSvg('size-20')
 	};
 
 	onMount(() => {
@@ -57,6 +58,8 @@
 				</div>
 			{/if}
 		{/each}
+
+		<QueryFileCollectionWorkspace />
 
 		<QueryBlockActionsCodingWorkspace {contentType} />
 	{:else}

@@ -70,6 +70,7 @@ pub struct QueryBlockDtoStruct {
 }
 
 // QueryFile
+#[derive(serde::Serialize)]
 pub struct QueryFileStruct {
     pub id: i32,
     pub name: String,

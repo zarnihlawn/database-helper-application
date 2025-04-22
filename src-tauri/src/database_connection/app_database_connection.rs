@@ -1,5 +1,5 @@
 use crate::models::structs::schema_struct::{
-    ContentTypeStruct, DatabaseConnectionStruct, DatasourceStruct, User,
+    ContentTypeStruct, DatabaseConnectionStruct, DatasourceStruct, QueryFileStruct, User,
 };
 use sqlx::sqlite::SqlitePool;
 use sqlx::Row;
@@ -379,4 +379,75 @@ pub async fn get_database_connection() -> Result<Vec<DatabaseConnectionStruct>, 
     }
 
     Ok(connections)
+}
+
+#[tauri::command]
+pub async fn create_file_for_database(name: String, description: String) -> Result<i64, String> {
+    print!("create_file_for_database , {} , {}", name, description);
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let result =
+        sqlx::query("INSERT INTO query_file (name, description) VALUES (?, ?) RETURNING id")
+            .bind(name)
+            .bind(description)
+            .fetch_one(&pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+    let id: i64 = result.get("id");
+
+    Ok(id)
+}
+
+#[tauri::command]
+pub async fn store_file_with_database(
+    database_connection_id: i64,
+    query_file_id: i64,
+) -> Result<(), String> {
+    println!("store_file_with_database");
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    sqlx::query("INSERT INTO database_file_collection (database_connection_id, query_file_id) VALUES (?, ?)")
+        .bind(database_connection_id)
+        .bind(query_file_id)
+        .execute(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_file_collection(
+    database_connection_id: i64,
+) -> Result<Vec<QueryFileStruct>, String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let rows = sqlx::query(
+        "SELECT id, name, description FROM query_file WHERE database_connection_id = ?",
+    )
+    .bind(database_connection_id)
+    .fetch_all(&pool)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    let mut files = Vec::new();
+    for row in rows {
+        files.push(QueryFileStruct {
+            id: row.get(0),
+            name: row.get(1),
+            description: row.get(2),
+        });
+    }
+
+    Ok(files)
 }

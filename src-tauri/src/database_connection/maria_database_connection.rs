@@ -51,6 +51,3 @@ pub async fn save_maria_connection(
 
     Ok(())
 }
-
-#[tauri::command]
-pub async fn get_database_from_maria(url: String) {}

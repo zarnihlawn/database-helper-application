@@ -6,7 +6,10 @@
 	import { SQLiteSvg } from '$lib/asset/image/svg/sqlite-svg';
 	import { TableSvg } from '$lib/asset/image/svg/table-svg';
 	import { FolderSvg } from '$lib/asset/image/svg/folder-svg';
-	import type { CollectionInfo, TableInfoInterface } from '$lib/model/interface/erd.interface';
+	import type {
+		CollectionInfo,
+		TableInfoInterface
+	} from '$lib/model/interface/erd.interface';
 	import type {
 		DatabaseConnectionInterface,
 		DatasourceInterface
@@ -45,11 +48,16 @@
 		MSSQL: MicrosoftSqlServerSvg('size-5')
 	};
 
-	async function getSQLiteTablesAndColumns(url: string): Promise<TableInfoInterface[]> {
+	async function getSQLiteTablesAndColumns(
+		url: string
+	): Promise<TableInfoInterface[]> {
 		try {
-			const result: TableInfoInterface[] = await invoke('get_database_from_sqlite', {
-				url: url
-			});
+			const result: TableInfoInterface[] = await invoke(
+				'get_database_from_sqlite',
+				{
+					url: url
+				}
+			);
 			return result;
 		} catch (error) {
 			console.error('Error fetching SQLite info:', error);
@@ -60,14 +68,15 @@
 	async function getMssqlTablesAndColumns(
 		url: string
 	): Promise<
-		{ database_name: string; schemas: { schema_name: string; tables: TableInfoInterface[] }[] }[]
+		{
+			database_name: string;
+			schemas: { schema_name: string; tables: TableInfoInterface[] }[];
+		}[]
 	> {
 		try {
 			const result = await invoke<DatabaseInfo[]>('get_database_from_mssql', {
 				url: url
 			});
-
-			console.log('MSSQL metadata:', result);
 
 			// Transform the data to group tables by database and then by schema
 			const databaseInfos: {
@@ -76,15 +85,21 @@
 			}[] = [];
 
 			for (const database of result) {
-				const schemas: { schema_name: string; tables: TableInfoInterface[] }[] = [];
+				const schemas: { schema_name: string; tables: TableInfoInterface[] }[] =
+					[];
 				for (const schema of database.schemas) {
 					const tables: TableInfoInterface[] = schema.tables.map(
-						(table: { name: string; columns: { name: string; data_type: string }[] }) => ({
+						(table: {
+							name: string;
+							columns: { name: string; data_type: string }[];
+						}) => ({
 							name: table.name,
-							columns: table.columns.map((column: { name: string; data_type: string }) => ({
-								name: column.name,
-								data_type: column.data_type
-							}))
+							columns: table.columns.map(
+								(column: { name: string; data_type: string }) => ({
+									name: column.name,
+									data_type: column.data_type
+								})
+							)
 						})
 					);
 					schemas.push({ schema_name: schema.name, tables: tables });
@@ -103,12 +118,12 @@
 		url: string
 	): Promise<Record<string, Record<string, DatabaseObjects>>> {
 		try {
-			const result: Record<string, Record<string, DatabaseObjects>> = await invoke(
-				'get_database_from_postgres',
-				{
-					url: url
-				}
-			);
+			const result: Record<
+				string,
+				Record<string, DatabaseObjects>
+			> = await invoke('get_database_from_postgres', {
+				url: url
+			});
 			return result;
 		} catch (error) {
 			console.error('Error fetching PostgreSQL info:', error);
@@ -127,7 +142,9 @@
 			// Group collections by database name
 			const groupedCollections = result.reduce(
 				(acc, curr) => {
-					const existingDb = acc.find((db) => db.database_name === curr.database_name);
+					const existingDb = acc.find(
+						(db) => db.database_name === curr.database_name
+					);
 					if (existingDb) {
 						existingDb.collections.push(curr.collection_name);
 					} else {
@@ -157,17 +174,23 @@
 					string,
 					Record<
 						string,
-						{ tables: { name: string; columns: { name: string; data_type: string }[] }[] }
+						{
+							tables: {
+								name: string;
+								columns: { name: string; data_type: string }[];
+							}[];
+						}
 					>
 				>
 			>('get_database_from_mysql', {
 				url: url
 			});
 
-			console.log('MySQL metadata:', result);
-
 			// Transform the data to group tables by schema
-			const schemaInfos: { schema_name: string; tables: TableInfoInterface[] }[] = [];
+			const schemaInfos: {
+				schema_name: string;
+				tables: TableInfoInterface[];
+			}[] = [];
 			for (const [schema, schemaData] of Object.entries(result)) {
 				const tables: TableInfoInterface[] = [];
 				for (const [_, dbObjects] of Object.entries(schemaData)) {
@@ -199,7 +222,9 @@
 	}
 </script>
 
-<main class="menu menu-xs bg-base-200 rounded-box max-w-64 min-w-64 overflow-auto p-1 shadow-sm">
+<main
+	class="menu menu-xs bg-base-200 rounded-box max-w-64 min-w-64 overflow-auto p-1 shadow-sm"
+>
 	{#if databaseConnection.length > 0}
 		{#each databaseConnection as database}
 			{#each datasource as source}
@@ -238,7 +263,9 @@
 											{/each}
 										</ul>
 									{:catch error}
-										<p class="text-error">Failed to load tables and columns: {error}</p>
+										<p class="text-error">
+											Failed to load tables and columns: {error}
+										</p>
 									{/await}
 								{:else if source.name === 'PostgreSQL'}
 									{#await getPostgreSQLTablesAndColumns(database.url)}
@@ -264,7 +291,9 @@
 																			<li>
 																				<details>
 																					<summary>
-																						{@html FolderSvg('size-5 text-info')}
+																						{@html FolderSvg(
+																							'size-5 text-info'
+																						)}
 																						Tables
 																					</summary>
 																					<ul>
@@ -272,7 +301,9 @@
 																							<li>
 																								<details>
 																									<summary>
-																										{@html TableSvg('size-5 text-info')}
+																										{@html TableSvg(
+																											'size-5 text-info'
+																										)}
 																										{tableName}
 																									</summary>
 																								</details>
@@ -285,7 +316,9 @@
 																			<li>
 																				<details>
 																					<summary>
-																						{@html FolderSvg('size-5 text-info')}
+																						{@html FolderSvg(
+																							'size-5 text-info'
+																						)}
 																						View
 																					</summary>
 																					<ul>
@@ -293,7 +326,9 @@
 																							<li>
 																								<details>
 																									<summary>
-																										{@html TableSvg('size-5 text-info')}
+																										{@html TableSvg(
+																											'size-5 text-info'
+																										)}
 																										{viewName}
 																									</summary>
 																								</details>
@@ -305,7 +340,9 @@
 																			<li>
 																				<details>
 																					<summary>
-																						{@html FolderSvg('size-5 text-info')}
+																						{@html FolderSvg(
+																							'size-5 text-info'
+																						)}
 																						Functions
 																					</summary>
 																					<ul>
@@ -313,7 +350,9 @@
 																							<li>
 																								<details>
 																									<summary>
-																										{@html TableSvg('size-5 text-info')}
+																										{@html TableSvg(
+																											'size-5 text-info'
+																										)}
 																										{functionName}
 																									</summary>
 																								</details>
@@ -325,7 +364,9 @@
 																			<li>
 																				<details>
 																					<summary>
-																						{@html FolderSvg('size-5 text-info')}
+																						{@html FolderSvg(
+																							'size-5 text-info'
+																						)}
 																						Sequence
 																					</summary>
 																					<ul>
@@ -333,7 +374,9 @@
 																							<li>
 																								<details>
 																									<summary>
-																										{@html TableSvg('size-5 text-info')}
+																										{@html TableSvg(
+																											'size-5 text-info'
+																										)}
 																										{sequenceName}
 																									</summary>
 																								</details>
@@ -352,7 +395,9 @@
 											{/each}
 										</ul>
 									{:catch error}
-										<p class="text-error">Failed to load database information: {error}</p>
+										<p class="text-error">
+											Failed to load database information: {error}
+										</p>
 									{/await}
 								{:else if source.name === 'MongoDB'}
 									{#await getMongoDBCollections(database.url)}
@@ -381,7 +426,9 @@
 											{/each}
 										</ul>
 									{:catch error}
-										<p class="text-error">Failed to load collections: {error}</p>
+										<p class="text-error">
+											Failed to load collections: {error}
+										</p>
 									{/await}
 								{:else if source.name === 'MySQL'}
 									{#await getMySQLTablesAndColumns(database.url)}
@@ -407,7 +454,9 @@
 																			{#each table.columns as column}
 																				<li>
 																					<div>
-																						{@html ColumnSvg('size-5 text-warning')}
+																						{@html ColumnSvg(
+																							'size-5 text-warning'
+																						)}
 																						{column.name} ({column.data_type})
 																					</div>
 																				</li>
@@ -422,7 +471,9 @@
 											{/each}
 										</ul>
 									{:catch error}
-										<p class="text-error">Failed to load tables and columns: {error}</p>
+										<p class="text-error">
+											Failed to load tables and columns: {error}
+										</p>
 									{/await}
 								{:else if source.name === 'MariaDB'}
 									{#await getMySQLTablesAndColumns(database.url)}
@@ -448,7 +499,9 @@
 																			{#each table.columns as column}
 																				<li>
 																					<div>
-																						{@html ColumnSvg('size-5 text-warning')}
+																						{@html ColumnSvg(
+																							'size-5 text-warning'
+																						)}
 																						{column.name} ({column.data_type})
 																					</div>
 																				</li>
@@ -463,7 +516,9 @@
 											{/each}
 										</ul>
 									{:catch error}
-										<p class="text-error">Failed to load tables and columns: {error}</p>
+										<p class="text-error">
+											Failed to load tables and columns: {error}
+										</p>
 									{/await}
 								{:else if source.name === 'MSSQL'}
 									{#await getMssqlTablesAndColumns(database.url)}
@@ -490,14 +545,18 @@
 																				<li>
 																					<details>
 																						<summary>
-																							{@html TableSvg('size-5 text-warning')}
+																							{@html TableSvg(
+																								'size-5 text-warning'
+																							)}
 																							{table.name}
 																						</summary>
 																						<ul>
 																							{#each table.columns as column (column.name)}
 																								<li>
 																									<div>
-																										{@html ColumnSvg('size-5 text-warning')}
+																										{@html ColumnSvg(
+																											'size-5 text-warning'
+																										)}
 																										{column.name} ({column.data_type})
 																									</div>
 																								</li>
@@ -516,7 +575,9 @@
 											</ul>
 										{/each}
 									{:catch error}
-										<p class="text-error">Failed to load tables and columns: {error}</p>
+										<p class="text-error">
+											Failed to load tables and columns: {error}
+										</p>
 									{/await}
 								{/if}
 							</details>

@@ -154,14 +154,12 @@
 							url: url,
 							connectionName: connectionName
 						});
-						console.log(result);
 					} else {
 						const result = await invoke('save_mongo_connection', {
 							user_id: null,
 							url: url,
 							connectionName: connectionName
 						});
-						console.log(result);
 					}
 					break;
 				case 'MariaDB':
@@ -200,7 +198,9 @@
 					break;
 			}
 		} else if (datasourceType === 'SQLite') {
-			alert('Please select an SQLite database file and enter a connection name.');
+			alert(
+				'Please select an SQLite database file and enter a connection name.'
+			);
 		}
 	}
 </script>
@@ -215,7 +215,9 @@
 
 		<div class="my-1 flex-1 overflow-y-auto py-3">
 			<form>
-				<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4">
+				<fieldset
+					class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4"
+				>
 					<legend class="fieldset-legend">
 						<h2 class="text-lg font-bold">Connection Details</h2>
 					</legend>
@@ -230,8 +232,9 @@
 
 					<label for="url" class="fieldset-label">URL</label>
 					{#if datasource.name === 'SQLite'}
-						<button class="btn btn-primary w-full" onclick={handleSelectSQLiteFile}
-							>Select SQLite Database</button
+						<button
+							class="btn btn-primary w-full"
+							onclick={handleSelectSQLiteFile}>Select SQLite Database</button
 						>
 					{:else}
 						<input
@@ -241,17 +244,23 @@
 							placeholder={getUrlConnectionPlaceholder(datasource.name)}
 						/>
 						{#if url !== ''}
-							<p class="fieldset-label ml-2">E.g. {getUrlConnectionPlaceholder(datasource.name)}</p>
+							<p class="fieldset-label ml-2">
+								E.g. {getUrlConnectionPlaceholder(datasource.name)}
+							</p>
 						{/if}
 					{/if}
 
 					<div class="modal-action">
-						<button class="btn btn-success" onclick={() => handleTestConnection(datasource.name)}>
+						<button
+							class="btn btn-success"
+							onclick={() => handleTestConnection(datasource.name)}
+						>
 							Test Connection
 						</button>
 						<button class="btn btn-error" onclick={handleClose}>Cancel</button>
-						<button class="btn btn-primary" onclick={() => handleConnect(datasource.name)}
-							>Connect</button
+						<button
+							class="btn btn-primary"
+							onclick={() => handleConnect(datasource.name)}>Connect</button
 						>
 					</div>
 				</fieldset>

@@ -37,6 +37,3 @@
 	animation: fade-in-up 0.8s ease-out both;
 }
 
-body {
-	overscroll-behavior: none;
-}
