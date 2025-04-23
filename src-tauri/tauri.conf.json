@@ -28,6 +28,7 @@
 	"bundle": {
 		"active": true,
 		"targets": "all",
+		"createUpdaterArtifacts": true,
 		"icon": [
 			"icons/32x32.png",
 			"icons/128x128.png",
@@ -41,7 +42,7 @@
 			"endpoints": [
 				"https://github.com/zarnihlawn/database-helper-application/releases/latest/download/latest.json"
 			],
-			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ2OTk2RjFEOEZENUM1NUYKUldSZnhkV1BIVytaUmdVY0NOVTk2a2FoTSt5MGdNWW42YitFVk02aFBldWwrME9id3BPN2N4eDcK"
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY3MDk4ODY0M0NCNTAyODEKUldTQkFyVThaSWdKWjcvSEt3WTc1WUpBWmtSczQzTzdVN1VYYlF2VlRUZEZqSjhEUWtqVjRFbGQK"
 		}
 	}
 }
