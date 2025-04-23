@@ -9,7 +9,8 @@
 
 	let { children } = $props();
 
-	// Startup
+	// Check Update
+	
 
 	// Local Storage
 	getUserFromLocalStorage();

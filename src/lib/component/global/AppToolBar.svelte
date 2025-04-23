@@ -2,6 +2,7 @@
 	import { exitApplication, minimizeApplication, maximizeApplication } from '$lib/util/window.util';
 
 	import { goToRoute } from '$lib/util/router.util';
+	import { checkForAppUpdates } from '$lib/util/update.util';
 </script>
 
 <div class="navbar bg-base-100 shadow-sm" data-tauri-drag-region>
@@ -27,6 +28,11 @@
 				<li>
 					<button class="btn btn-primary" onclick={() => goToRoute('/auth/profile')}>Account</button
 					>
+				</li>
+				<li>
+					<button class="btn btn-primary" onclick={() => checkForAppUpdates(true)}>
+						Check for Updates
+					</button>
 				</li>
 			</ul>
 		</div>
