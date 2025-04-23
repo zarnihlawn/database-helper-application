@@ -6,22 +6,12 @@
 	import { onMount } from 'svelte';
 	import { EditSvg } from '$lib/asset/image/svg/edit-svg';
 	import { DeleteSvg } from '$lib/asset/image/svg/delete-svg';
-
+	import EditFileDialogWorkspace from '../dialog/EditFileDialogWorkspace.svelte';
+	import type { QueryFileCollection } from '$lib/model/type/query-file-collection.type';
 	let selectedDatabase = $derived(selectedDatabaseState.selectedDatabase);
 
-	type QueryFile = {
-		id: number;
-		name: string;
-		description: string;
-	};
-
-	type QueryFileCollection = {
-		id: number;
-		name: string;
-		description: string;
-	};
-
 	let showNewFileDialog = $state(false);
+	let showEditFileDialog = $state(false);
 	let fileCollection = $state<QueryFileCollection[]>([]);
 
 	async function getFileCollection() {
@@ -40,6 +30,9 @@
 	function handleAddNewFile() {
 		showNewFileDialog = true;
 	}
+	function handleEditFile() {
+		showEditFileDialog = true;
+	}
 </script>
 
 <main class="flex flex-row justify-between gap-3">
@@ -47,10 +40,17 @@
 		<button class="btn btn-primary" onclick={handleAddNewFile}>
 			{@html PlusSvg('size-4')} New File
 		</button>
-		<button class="btn btn-warning">
+		<button
+			class="btn btn-warning"
+			class:disabled={fileCollection.length === 0}
+			onclick={handleEditFile}
+		>
 			{@html EditSvg('size-4')} Edit File
 		</button>
-		<button class="btn btn-error">
+		<button
+			class="btn btn-error"
+			class:disabled={fileCollection.length === 0}
+		>
 			{@html DeleteSvg('size-4')} Delete File
 		</button>
 	</section>
@@ -66,4 +66,11 @@
 
 {#if showNewFileDialog}
 	<NewFileDialogWorkspace onClose={() => (showNewFileDialog = false)} />
+{/if}
+
+{#if showEditFileDialog}
+	<EditFileDialogWorkspace
+		{fileCollection}
+		onClose={() => (showEditFileDialog = false)}
+	/>
 {/if}
