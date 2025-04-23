@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { exitApplication, minimizeApplication, maximizeApplication } from '$lib/util/window.util';
+	import {
+		exitApplication,
+		minimizeApplication,
+		maximizeApplication
+	} from '$lib/util/window.util';
 
 	import { goToRoute } from '$lib/util/router.util';
 	import { checkForAppUpdates } from '$lib/util/update.util';
@@ -24,13 +28,20 @@
 					/>
 				</svg>
 			</button>
-			<ul class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 w-52 shadow">
+			<ul
+				class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 w-52 shadow"
+			>
 				<li>
-					<button class="btn btn-primary" onclick={() => goToRoute('/auth/profile')}>Account</button
+					<button
+						class="btn btn-primary my-2"
+						onclick={() => goToRoute('/auth/profile')}>Account</button
 					>
 				</li>
 				<li>
-					<button class="btn btn-primary" onclick={() => checkForAppUpdates(true)}>
+					<button
+						class="btn btn-primary my-2"
+						onclick={() => checkForAppUpdates(true)}
+					>
 						Check for Updates
 					</button>
 				</li>
@@ -53,7 +64,12 @@
 					stroke="currentColor"
 					class="h-6 w-6"
 				>
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16" />
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M4 12h16"
+					/>
 				</svg>
 			</button>
 		</div>
@@ -79,7 +95,10 @@
 				</svg>
 			</button>
 		</div>
-		<div class="tooltip tooltip-left tooltip-error" data-tip="Close Application">
+		<div
+			class="tooltip tooltip-left tooltip-error"
+			data-tip="Close Application"
+		>
 			<button
 				aria-label="Close Application"
 				class="btn btn-error btn-circle"
