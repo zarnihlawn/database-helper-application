@@ -45,6 +45,9 @@
 						Check for Updates
 					</button>
 				</li>
+				<li>
+					<button class="btn btn-primary my-2"> Version 0.3.0 </button>
+				</li>
 			</ul>
 		</div>
 		<h1 class="btn btn-ghost text-xl">Database Helper Application</h1>

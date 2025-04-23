@@ -1150,7 +1150,7 @@ checksum = "2a2330da5de22e8a3cb63252ce2abb30116bf5265e89c0e01bc17015ce30a476"
 
 [[package]]
 name = "database-helper-application"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "bcrypt 0.17.0",
  "bollard",
