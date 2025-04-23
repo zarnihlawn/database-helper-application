@@ -37,3 +37,8 @@
 	animation: fade-in-up 0.8s ease-out both;
 }
 
+
+html, body {
+	overflow: hidden;
+}
+

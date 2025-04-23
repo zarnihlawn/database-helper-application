@@ -9,7 +9,6 @@
 		startDockerContainer,
 		stopDockerContainer
 	} from '$lib/tool/docker.tool';
-
 </script>
 
 <section>
@@ -24,12 +23,20 @@
 					<h2>
 						{container.name}
 						{#if container.status.startsWith('Exited')}
-							<div class="tooltip tooltip-error" data-tip="{container.name} is stopped.">
-								<span class="indicator-item status status-error mb-1 ml-1"></span>
+							<div
+								class="tooltip tooltip-error"
+								data-tip="{container.name} is stopped."
+							>
+								<span class="indicator-item status status-error mb-1 ml-1"
+								></span>
 							</div>
 						{:else}
-							<div class="tooltip tooltip-success" data-tip="{container.name} is running.">
-								<span class="indicator-item status status-success mb-1 ml-1"></span>
+							<div
+								class="tooltip tooltip-success"
+								data-tip="{container.name} is running."
+							>
+								<span class="indicator-item status status-success mb-1 ml-1"
+								></span>
 							</div>
 						{/if}
 					</h2>
@@ -45,7 +52,9 @@
 							<p>State: {container.state}</p>
 							<p>Created: {container.created}</p>
 						</div>
-						<div class="link-info cursor-pointer text-xs font-semibold opacity-60">
+						<div
+							class="link-info cursor-pointer text-xs font-semibold opacity-60"
+						>
 							More Info ...
 						</div>
 					</div>
@@ -55,8 +64,11 @@
 						class="btn btn-square btn-ghost text-success"
 						onclick={() => startDockerContainer(container.id)}
 					>
-						<div class="tooltip tooltip-left tooltip-success" data-tip="Start Container">
-							{@html PlaySvg}
+						<div
+							class="tooltip tooltip-left tooltip-success"
+							data-tip="Start Container"
+						>
+							{@html PlaySvg('size-7')}
 						</div>
 					</button>
 				{/if}
@@ -65,7 +77,10 @@
 						class="btn btn-square btn-ghost text-warning"
 						onclick={() => stopDockerContainer(container.id)}
 					>
-						<div class="tooltip tooltip-left tooltip-warning" data-tip="Stop Container">
+						<div
+							class="tooltip tooltip-left tooltip-warning"
+							data-tip="Stop Container"
+						>
 							{@html StopSvg}
 						</div>
 					</button>
@@ -74,12 +89,18 @@
 					class="btn btn-square btn-ghost text-error"
 					onclick={() => deleteDockerContainer(container.id)}
 				>
-					<div class="tooltip tooltip-left tooltip-error" data-tip="Delete Container">
-						{@html DeleteSvg}
+					<div
+						class="tooltip tooltip-left tooltip-error"
+						data-tip="Delete Container"
+					>
+						{@html DeleteSvg('size-7')}
 					</div>
 				</button>
 				<button class="btn btn-square btn-ghost text-info">
-					<div class="tooltip tooltip-left tooltip-info" data-tip="See More Actions">
+					<div
+						class="tooltip tooltip-left tooltip-info"
+						data-tip="See More Actions"
+					>
 						{@html MenuSvg}
 					</div>
 				</button>

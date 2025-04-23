@@ -433,7 +433,7 @@ pub async fn get_file_collection(
         .map_err(|e| e.to_string())?;
 
     let rows = sqlx::query(
-        "SELECT id, name, description FROM query_file WHERE database_connection_id = ?",
+        "SELECT id, name, description FROM query_file WHERE id IN (SELECT query_file_id FROM database_file_collection WHERE database_connection_id = ?)",
     )
     .bind(database_connection_id)
     .fetch_all(&pool)

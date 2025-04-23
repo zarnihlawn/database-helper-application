@@ -86,7 +86,7 @@
 					onclick={() => deleteDockerImage(image.image_id)}
 				>
 					<div class="tooltip tooltip-left tooltip-error" data-tip="Delete Image">
-						{@html DeleteSvg}
+						{@html DeleteSvg('size-7')}
 					</div>
 				</button>
 				<button class="btn btn-square btn-ghost text-info">

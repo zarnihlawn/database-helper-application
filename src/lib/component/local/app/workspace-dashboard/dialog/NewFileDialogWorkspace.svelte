@@ -27,8 +27,8 @@
 				});
 				try {
 					await invoke('store_file_with_database', {
-						database_connection_id: databaseConnectionId,
-						query_file_id: fileId
+						databaseConnectionId: databaseConnectionId,
+						queryFileId: fileId
 					});
 				} catch (error) {
 					console.error(error);
