@@ -7,60 +7,17 @@
 		ContentTypeInterface,
 		DatasourceInterface
 	} from '$lib/model/interface/schema.interface';
+	import { selectedDatabaseState } from '$lib/store/state/selectedDatabase.svelte';
+	import { onMount } from 'svelte';
 	import QueryBlockActionsCodingWorkspace from './component/QueryBlockActionsCodingWorkspace.svelte';
+	import { invoke } from '@tauri-apps/api/core';
 	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
 	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
-
-	import { PlusSvg } from '$lib/asset/image/svg/plus-svg';
-	import { selectedDatabaseState } from '$lib/store/state/selectedDatabase.svelte';
-	import { invoke } from '@tauri-apps/api/core';
-	import NewFileDialogWorkspace from '$lib/component/local/app/workspace-dashboard/dialog/NewFileDialogWorkspace.svelte';
-	import { onMount } from 'svelte';
-	import { EditSvg } from '$lib/asset/image/svg/edit-svg';
-	import { DeleteSvg } from '$lib/asset/image/svg/delete-svg';
-
-	let selectedDatabase = $derived(selectedDatabaseState.selectedDatabase);
-
-	type QueryFile = {
-		id: number;
-		name: string;
-		description: string;
-	};
-
-	type QueryFileCollection = {
-		id: number;
-		name: string;
-		description: string;
-	};
-
-	let showNewFileDialog = $state(false);
-	let fileCollection = $state<QueryFileCollection[]>([]);
-	let selectedFile = $state<QueryFile | null>(null);
-
-	async function getFileCollection() {
-		fileCollection = await invoke<QueryFileCollection[]>(
-			'get_file_collection',
-			{
-				databaseConnectionId: selectedDatabase?.id
-			}
-		);
-		console.log('File Collection', fileCollection);
-	}
-
-	function handleAddNewFile() {
-		showNewFileDialog = true;
-	}
-
-	function handleFileSelect(event: Event) {
-		const select = event.target as HTMLSelectElement;
-		const selectedCollection = fileCollection.find(
-			(collection) => collection.name === select.value
-		);
-		selectedFile = selectedCollection || null;
-	}
+	import QueryFileCollectionWorkspace from './component/QueryFileCollectionWorkspace.svelte';
 
 	let { datasource } = $props<{ datasource: DatasourceInterface[] }>();
 
+	let selectedDatabase = $derived(selectedDatabaseState.selectedDatabase);
 	let contentType: ContentTypeInterface[] = $state([]);
 
 	const svgMap: Record<string, string> = {
@@ -74,7 +31,6 @@
 
 	onMount(() => {
 		getContentType();
-		getFileCollection();
 	});
 
 	async function getContentType() {
@@ -86,7 +42,7 @@
 	{#if selectedDatabase}
 		{#each datasource as datasource}
 			{#if selectedDatabase.datasource_id === datasource.id}
-				<div class="card bg-base-200 flex flex-col gap-2 px-5 py-3 shadow-sm">
+				<div class="card bg-base-200 flex flex-col gap-3 px-5 py-3 shadow-sm">
 					<div class="flex gap-10">
 						{@html svgMap[datasource.name]}
 						<div class="flex flex-col">
@@ -99,39 +55,12 @@
 							</div>
 						</div>
 					</div>
-					<section class="flex w-full gap-2">
-						<section class=" flex w-full gap-2">
-							<button class="btn btn-primary" onclick={handleAddNewFile}>
-								{@html PlusSvg('size-4')} New File
-							</button>
-							<button class="btn btn-warning">
-								{@html EditSvg('size-4')} Edit File
-							</button>
-							<button class="btn btn-error">
-								{@html DeleteSvg('size-4')} Delete File
-							</button>
-						</section>
-						<section class="flex w-full">
-							<select class="select w-full" onchange={handleFileSelect}>
-								<option disabled selected>Pick a file ...</option>
-								{#each fileCollection as collection}
-									<option>{collection.name}</option>
-								{/each}
-							</select>
-						</section>
-					</section>
-					{#if showNewFileDialog}
-						<NewFileDialogWorkspace
-							onClose={() => (showNewFileDialog = false)}
-						/>
-					{/if}
+					<QueryFileCollectionWorkspace />
 				</div>
 			{/if}
 		{/each}
 
-		{#if selectedFile}
-			<QueryBlockActionsCodingWorkspace {contentType} />
-		{/if}
+		<QueryBlockActionsCodingWorkspace {contentType} />
 	{:else}
 		No Database Has Been Selected ...
 	{/if}
