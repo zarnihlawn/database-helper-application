@@ -54,6 +54,7 @@ pub struct DatasourceDto {
 }
 
 // QueryBlock
+#[derive(serde::Serialize)]
 pub struct QueryBlockStruct {
     pub id: i32,
     pub query_file_id: i32,

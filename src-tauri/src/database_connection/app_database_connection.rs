@@ -1,5 +1,6 @@
 use crate::models::structs::schema_struct::{
-    ContentTypeStruct, DatabaseConnectionStruct, DatasourceStruct, QueryFileStruct, User,
+    ContentTypeStruct, DatabaseConnectionStruct, DatasourceStruct, QueryBlockStruct,
+    QueryFileStruct, User,
 };
 use sqlx::sqlite::SqlitePool;
 use sqlx::Row;
@@ -407,7 +408,6 @@ pub async fn store_file_with_database(
     database_connection_id: i64,
     query_file_id: i64,
 ) -> Result<(), String> {
-    println!("store_file_with_database");
     let database_url = get_db_path();
     let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
         .await
@@ -450,4 +450,79 @@ pub async fn get_file_collection(
     }
 
     Ok(files)
+}
+
+#[tauri::command]
+pub async fn create_new_query_block(
+    query_file_id: i64,
+    content_type_id: i64,
+    serial_order: i64,
+    query_content_block: String,
+) -> Result<i64, String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let result = sqlx::query("INSERT INTO query_block (query_file_id, content_type_id, serial_order, query_content_block) VALUES (?, ?, ?, ?) RETURNING id")
+        .bind(query_file_id)
+        .bind(content_type_id)
+        .bind(serial_order)
+        .bind(query_content_block)
+        .fetch_one(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let id: i64 = result.get("id");
+
+    Ok(id)
+}
+
+#[tauri::command]
+pub async fn get_query_blocks(query_file_id: i64) -> Result<Vec<QueryBlockStruct>, String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let rows = sqlx::query(
+        "SELECT id, query_file_id, content_type_id, serial_order, query_content_block FROM query_block WHERE query_file_id = ?",
+    )
+    .bind(query_file_id)
+    .fetch_all(&pool)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    let mut blocks = Vec::new();
+    for row in rows {
+        blocks.push(QueryBlockStruct {
+            id: row.get(0),
+            query_file_id: row.get(1),
+            content_type_id: row.get(2),
+            serial_order: row.get(3),
+            query_content_block: row.get(4),
+        });
+    }
+
+    Ok(blocks)
+}
+
+#[tauri::command]
+pub async fn save_query_content_to_the_block(
+    query_block_id: i64,
+    query_content_block: String,
+) -> Result<(), String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    sqlx::query("UPDATE query_block SET query_content_block = ? WHERE id = ?")
+        .bind(query_content_block)
+        .bind(query_block_id)
+        .execute(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
 }

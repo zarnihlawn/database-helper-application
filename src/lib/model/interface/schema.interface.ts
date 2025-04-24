@@ -38,6 +38,7 @@ export interface QueryFileInterface {
 	description?: string;
 }
 
+
 export interface UserInterface {
 	id: number;
 	authentication_type_id: number;

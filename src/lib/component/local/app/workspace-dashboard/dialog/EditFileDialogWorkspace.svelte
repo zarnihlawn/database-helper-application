@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { QueryFileCollection } from '$lib/model/type/query-file-collection.type';
+	import type { QueryFileInterface } from '$lib/model/interface/schema.interface';
 	import { selectedDatabaseState } from '$lib/store/state/selectedDatabase.svelte';
 	import { invoke } from '@tauri-apps/api/core';
 
@@ -10,11 +10,11 @@
 	);
 
 	let { fileCollection, onClose } = $props<{
-		fileCollection: QueryFileCollection[];
+		fileCollection: QueryFileInterface[];
 		onClose: () => void;
 	}>();
 
-	let selectedFile = $state<QueryFileCollection | null>(null);
+	let selectedFile = $state<QueryFileInterface | null>(null);
 
 	function handleClose() {
 		onClose();

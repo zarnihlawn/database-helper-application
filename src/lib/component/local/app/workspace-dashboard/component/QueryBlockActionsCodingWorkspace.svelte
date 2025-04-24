@@ -3,22 +3,47 @@
 	import { PlaySvg } from '$lib/asset/image/svg/play-svg';
 	import { PlusSvg } from '$lib/asset/image/svg/plus-svg';
 	import type { ContentTypeInterface } from '$lib/model/interface/schema.interface';
+	import { invoke } from '@tauri-apps/api/core';
 	import QueryBlockCodingWorkspace from './QueryBlockCodingWorkspace.svelte';
+	import { selectedFileState } from '$lib/store/state/selectedFile.svelte';
+	import type { QueryBlockInterface } from '$lib/model/interface/schema.interface';
 
 	let { contentType } = $props<{ contentType: ContentTypeInterface[] }>();
+	let targetFile = $derived(selectedFileState.selectedFile);
 
-	let queryBlocks = $state<
-		Array<{
-			id: number;
-			language: ContentTypeInterface | null;
-			content: string;
-		}>
-	>([]);
+	let queryBlocks = $state<QueryBlockInterface[]>([]);
 
 	let nextId = $state(1);
 
-	function addNewBlock() {
-		queryBlocks = [...queryBlocks, { id: nextId, language: null, content: '' }];
+	$effect(() => {
+		if (targetFile) {
+			invoke<QueryBlockInterface[]>('get_query_blocks', {
+				queryFileId: targetFile.id
+			}).then((blocks) => {
+				queryBlocks = blocks;
+			});
+		}
+	});
+
+	async function addNewBlock() {
+		if (!targetFile?.id) return;
+
+		await invoke('create_new_query_block', {
+			queryFileId: targetFile.id,
+			contentTypeId: 1,
+			serialOrder: queryBlocks.length,
+			queryContentBlock: ''
+		});
+		queryBlocks = [
+			...queryBlocks,
+			{
+				id: nextId,
+				query_file_id: targetFile.id,
+				content_type_id: 1,
+				serial_order: queryBlocks.length,
+				query_content_block: ''
+			}
+		];
 		nextId++;
 	}
 
@@ -33,7 +58,7 @@
 		);
 		queryBlocks = queryBlocks.map((block) =>
 			block.id === blockId
-				? { ...block, language: selectedType || null }
+				? { ...block, content_type_id: selectedType?.id || 1 }
 				: block
 		);
 	}
@@ -97,10 +122,12 @@
 		</section>
 		<section class="px-2">
 			<QueryBlockCodingWorkspace
-				language={(block.language?.name.toLowerCase() as
-					| 'markdown'
-					| 'sql'
-					| 'json') || 'markdown'}
+				block={block}
+				language={contentType
+					.find(
+						(type: ContentTypeInterface) => type.id === block.content_type_id
+					)
+					?.name.toLowerCase() || 'markdown'}
 				theme="vs-dark"
 			/>
 		</section>

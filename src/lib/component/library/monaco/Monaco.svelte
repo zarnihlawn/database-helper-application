@@ -1,13 +1,17 @@
 <script lang="ts">
+	import type { QueryBlockInterface } from '$lib/model/interface/schema.interface';
+	import { invoke } from '@tauri-apps/api/core';
 	import * as monaco from 'monaco-editor';
 	import { editor } from 'monaco-editor';
 
 	let {
+		block,
 		language = 'markdown',
 		theme = 'vs',
 		readOnly = false,
 		onChange = () => {}
 	} = $props<{
+		block: QueryBlockInterface;
 		language?: 'markdown' | 'sql' | 'json';
 		theme?: 'vs' | 'vs-dark' | 'hc-black';
 		readOnly?: boolean;
@@ -41,14 +45,15 @@
 			fontSize: 14,
 			lineNumbers: 'on',
 			roundedSelection: false,
-			padding: { top: 10, bottom: 10 }, // Add Monaco editor padding
+			padding: { top: 10, bottom: 10 },
 			scrollbar: {
 				vertical: 'visible',
 				horizontal: 'visible',
 				useShadows: false,
 				verticalScrollbarSize: 10,
 				horizontalScrollbarSize: 10
-			}
+			},
+			value: block.query_content_block
 		});
 
 		// Apply border radius to editor container
@@ -65,6 +70,7 @@
 			const newValue = editorInstance.getValue();
 			onChange(newValue);
 			updateHeight();
+			saveQueryContentToTheBlock(block.id, newValue);
 		});
 
 		return () => {
@@ -73,6 +79,16 @@
 			}
 		};
 	});
+
+	async function saveQueryContentToTheBlock(
+		queryBlockId: number,
+		queryContentBlock: string
+	) {
+		await invoke('save_query_content_to_the_block', {
+			queryBlockId: queryBlockId,
+			queryContentBlock: queryContentBlock
+		});
+	}
 
 	$effect(() => {
 		if (editorInstance) {

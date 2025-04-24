@@ -14,6 +14,7 @@
 	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
 	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
 	import QueryFileCollectionWorkspace from './component/QueryFileCollectionWorkspace.svelte';
+	import { selectedFileState } from '$lib/store/state/selectedFile.svelte';
 
 	let { datasource } = $props<{ datasource: DatasourceInterface[] }>();
 
@@ -60,7 +61,9 @@
 			{/if}
 		{/each}
 
-		<QueryBlockActionsCodingWorkspace {contentType} />
+		{#if selectedFileState.selectedFile}
+			<QueryBlockActionsCodingWorkspace {contentType} />
+		{/if}
 	{:else}
 		No Database Has Been Selected ...
 	{/if}

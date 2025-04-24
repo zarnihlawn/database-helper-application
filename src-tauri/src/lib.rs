@@ -2,9 +2,16 @@
 
 pub mod modules;
 
+pub mod database_connection;
+
+use database_connection::mongo_database_connection::{
+    get_database_from_mongo, test_mongo_connection,
+};
+
 use database_connection::app_database_connection::{
-    app_database_init, create_file_for_database, get_content_type, get_database_connection,
-    get_datasource, get_file_collection, get_user_by_email, signup_user, store_file_with_database,
+    app_database_init, create_file_for_database, create_new_query_block, get_content_type,
+    get_database_connection, get_datasource, get_file_collection, get_query_blocks,
+    get_user_by_email, save_query_content_to_the_block, signup_user, store_file_with_database,
 };
 use database_connection::maria_database_connection::{
     save_maria_connection, test_maria_connection,
@@ -37,11 +44,8 @@ use crate::modules::window_controller::{
 
 pub mod models;
 
-pub mod database_connection;
-
-use crate::database_connection::mongo_database_connection::{
-    get_database_from_mongo, test_mongo_connection,
-};
+pub mod information;
+use crate::information::application_information::get_application_version;
 
 pub mod dialog;
 use crate::dialog::file_select_dialog::open_sqlite_file_selection_dialog;
@@ -97,6 +101,9 @@ pub fn run() {
             create_file_for_database,
             store_file_with_database,
             get_file_collection,
+            create_new_query_block,
+            get_query_blocks,
+            save_query_content_to_the_block,
             // Sqlite Database
             test_sqlite_connection,
             save_sqlite_connection,
@@ -122,6 +129,8 @@ pub fn run() {
             get_database_from_mssql,
             // Dialogs
             open_sqlite_file_selection_dialog,
+            // Information
+            get_application_version
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

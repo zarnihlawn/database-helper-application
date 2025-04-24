@@ -7,6 +7,18 @@
 
 	import { goToRoute } from '$lib/util/router.util';
 	import { checkForAppUpdates } from '$lib/util/update.util';
+	import { invoke } from '@tauri-apps/api/core';
+	import { onMount } from 'svelte';
+
+	let appVersion = $state('');
+
+	async function getAppVersion() {
+		appVersion = await invoke('get_application_version');
+	}
+
+	onMount(() => {
+		getAppVersion();
+	});
 </script>
 
 <div class="navbar bg-base-100 shadow-sm" data-tauri-drag-region>
@@ -45,9 +57,9 @@
 						Check for Updates
 					</button>
 				</li>
-				<li>
-					<button class="btn btn-primary my-2"> Version 0.3.0 </button>
-				</li>
+				<p class="my-2 text-center text-xs opacity-50">
+					Version : {appVersion}
+				</p>
 			</ul>
 		</div>
 		<h1 class="btn btn-ghost text-xl">Database Helper Application</h1>
