@@ -526,3 +526,23 @@ pub async fn save_query_content_to_the_block(
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn update_query_block_content_type_id(
+    query_block_id: i64,
+    content_type_id: i64,
+) -> Result<(), String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    sqlx::query("UPDATE query_block SET content_type_id = ? WHERE id = ?")
+        .bind(content_type_id)
+        .bind(query_block_id)
+        .execute(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}

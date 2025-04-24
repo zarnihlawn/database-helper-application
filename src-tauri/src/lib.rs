@@ -12,6 +12,7 @@ use database_connection::app_database_connection::{
     app_database_init, create_file_for_database, create_new_query_block, get_content_type,
     get_database_connection, get_datasource, get_file_collection, get_query_blocks,
     get_user_by_email, save_query_content_to_the_block, signup_user, store_file_with_database,
+    update_query_block_content_type_id,
 };
 use database_connection::maria_database_connection::{
     save_maria_connection, test_maria_connection,
@@ -104,6 +105,7 @@ pub fn run() {
             create_new_query_block,
             get_query_blocks,
             save_query_content_to_the_block,
+            update_query_block_content_type_id,
             // Sqlite Database
             test_sqlite_connection,
             save_sqlite_connection,

@@ -12,7 +12,6 @@
 	let targetFile = $derived(selectedFileState.selectedFile);
 
 	let queryBlocks = $state<QueryBlockInterface[]>([]);
-
 	let nextId = $state(1);
 
 	$effect(() => {
@@ -21,6 +20,7 @@
 				queryFileId: targetFile.id
 			}).then((blocks) => {
 				queryBlocks = blocks;
+				nextId = Math.max(...blocks.map((b) => b.id), 0) + 1;
 			});
 		}
 	});
@@ -28,6 +28,7 @@
 	async function addNewBlock() {
 		if (!targetFile?.id) return;
 
+		const newId = nextId++;
 		await invoke('create_new_query_block', {
 			queryFileId: targetFile.id,
 			contentTypeId: 1,
@@ -37,14 +38,13 @@
 		queryBlocks = [
 			...queryBlocks,
 			{
-				id: nextId,
+				id: newId,
 				query_file_id: targetFile.id,
 				content_type_id: 1,
 				serial_order: queryBlocks.length,
 				query_content_block: ''
 			}
 		];
-		nextId++;
 	}
 
 	function removeBlock(id: number) {
@@ -122,7 +122,7 @@
 		</section>
 		<section class="px-2">
 			<QueryBlockCodingWorkspace
-				block={block}
+				{block}
 				language={contentType
 					.find(
 						(type: ContentTypeInterface) => type.id === block.content_type_id
