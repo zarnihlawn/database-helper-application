@@ -8,6 +8,9 @@ use std::fs;
 use std::path::Path;
 use tokio::runtime::Runtime;
 
+use super::postgres_database_connection::run_query_block_postgresql;
+use super::sqlite_database_connection::run_query_block_sqlite;
+
 // Check if a database file exists, and create one if it does not.
 pub fn app_database_init() {
     let rt = Runtime::new().unwrap();
@@ -546,3 +549,56 @@ pub async fn update_query_block_content_type_id(
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn delete_query_block(query_block_id: i64) -> Result<(), String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    sqlx::query("DELETE FROM query_block WHERE id = ?")
+        .bind(query_block_id)
+        .execute(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn run_query_block(
+    query_block_id: i64,
+    database_source: i64,
+    database_connection: String,
+    content: String,
+) -> Result<(), String> {
+    match database_source {
+        1 => run_query_block_postgresql(database_connection, content).await,
+        2 => run_query_block_sqlite(database_connection, content).await,
+        3 => Ok(()),
+        4 => Ok(()),
+        5 => Ok(()),
+        6 => Ok(()),
+        _ => Err("Invalid database source".to_string()),
+    }
+}
+
+#[tauri::command]
+pub async fn get_content_from_query_block(query_block_id: i64) -> Result<String, String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let row = sqlx::query("SELECT query_content_block FROM query_block WHERE id = ?")
+        .bind(query_block_id)
+        .fetch_one(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let content: String = row.get("query_content_block");
+
+    Ok(content)
+}
+

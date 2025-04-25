@@ -154,3 +154,14 @@ pub async fn get_database_from_postgres(
 
     Ok(database_schemas)
 }
+
+pub async fn run_query_block_postgresql(url: String, content: String) -> Result<(), String> {
+    let pool = PgPool::connect(&url).await.map_err(|e| e.to_string())?;
+
+    let result = sqlx::query(&content)
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}

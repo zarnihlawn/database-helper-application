@@ -2,11 +2,15 @@
 	import { DeleteSvg } from '$lib/asset/image/svg/delete-svg';
 	import { PlaySvg } from '$lib/asset/image/svg/play-svg';
 	import { PlusSvg } from '$lib/asset/image/svg/plus-svg';
-	import type { ContentTypeInterface } from '$lib/model/interface/schema.interface';
+	import type {
+		ContentTypeInterface,
+		DatabaseConnectionInterface
+	} from '$lib/model/interface/schema.interface';
 	import { invoke } from '@tauri-apps/api/core';
 	import QueryBlockCodingWorkspace from './QueryBlockCodingWorkspace.svelte';
 	import { selectedFileState } from '$lib/store/state/selectedFile.svelte';
 	import type { QueryBlockInterface } from '$lib/model/interface/schema.interface';
+	import { selectedDatabaseState } from '$lib/store/state/selectedDatabase.svelte';
 
 	let { contentType } = $props<{ contentType: ContentTypeInterface[] }>();
 	let targetFile = $derived(selectedFileState.selectedFile);
@@ -47,11 +51,27 @@
 		];
 	}
 
-	function removeBlock(id: number) {
+	async function removeBlock(id: number) {
 		queryBlocks = queryBlocks.filter((block) => block.id !== id);
+		await invoke('delete_query_block', {
+			queryBlockId: id
+		});
 	}
 
-	function handleLanguageChange(event: Event, blockId: number) {
+	async function runBlock(id: number) {
+		let content = await invoke('get_content_from_query_block', {
+			queryBlockId: id
+		});
+		let database = selectedDatabaseState.selectedDatabase;
+		await invoke('run_query_block', {
+			queryBlockId: id,
+			databaseSource: database?.datasource_id,
+			databaseConnection: database?.url,
+			content: content
+		});
+	}
+
+	async function handleLanguageChange(event: Event, blockId: number) {
 		const select = event.target as HTMLSelectElement;
 		const selectedType = contentType.find(
 			(type: ContentTypeInterface) => type.name === select.value
@@ -61,6 +81,11 @@
 				? { ...block, content_type_id: selectedType?.id || 1 }
 				: block
 		);
+
+		await invoke('update_query_block_content_type_id', {
+			queryBlockId: blockId,
+			contentTypeId: selectedType?.id || 1
+		});
 	}
 </script>
 
@@ -94,7 +119,7 @@
 					class="tooltip tooltip-right tooltip-success"
 					data-tip="execute this query block"
 				>
-					<button class="btn btn-success">
+					<button class="btn btn-success" onclick={() => runBlock(block.id)}>
 						{@html PlaySvg('size-4')} Run Block
 					</button>
 				</div>
@@ -110,12 +135,18 @@
 			</section>
 			<section class="w-full">
 				<select
-					class="select mx-2 w-full"
+					class="select mr-4 w-full"
 					onchange={(e) => handleLanguageChange(e, block.id)}
 				>
 					<option disabled selected>Pick a language ...</option>
 					{#each contentType as type}
-						<option value={type.name}>{type.name}</option>
+						{#if type.id === block.content_type_id}
+							<option value={type.name} selected
+								>{type.name.toUpperCase()}</option
+							>
+						{:else}
+							<option value={type.name}>{type.name.toUpperCase()}</option>
+						{/if}
 					{/each}
 				</select>
 			</section>

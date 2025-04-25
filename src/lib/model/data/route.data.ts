@@ -1,5 +1,6 @@
 // Imports
-//#region 
+//#region
+import { AboutSvg } from '$lib/asset/image/svg/about-svg';
 import { AppearanceSvg } from '$lib/asset/image/svg/appearance-svg';
 import { ContainerSvg } from '$lib/asset/image/svg/container-svg';
 import { GeneralSettingsSvg } from '$lib/asset/image/svg/general-settings-svg';
@@ -36,6 +37,11 @@ export const RouteDocumentationDashboard: RouteInterface[] = [
 		name: 'Release Notes',
 		icon: ReleaseNotes,
 		url: '/app/documentation-dashboard/release-notes-documentation'
+	},
+	{
+		name: 'About',
+		icon: AboutSvg,
+		url: '/app/documentation-dashboard/about-documentation'
 	}
 ];
 //#endregion

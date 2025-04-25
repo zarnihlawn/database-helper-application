@@ -1,6 +1,7 @@
+<script>
+	import UserManualDocumentation from '$lib/component/local/app/documentation-dashboard/UserManualDocumentation.svelte';
+</script>
+
 <main>
-  <h1>User Manual</h1>
-  <section>
-    Docker 
-  </section>
+	<UserManualDocumentation />
 </main>

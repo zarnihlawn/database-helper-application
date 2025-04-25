@@ -26,6 +26,9 @@
 	import { SchemaSvg } from '$lib/asset/image/svg/schema-svg';
 	import type { DatabaseInfo } from '$lib/model/interface/mssql.interface';
 	import { DatabaseSvg } from '$lib/asset/image/svg/database-svg';
+	import { listen } from '@tauri-apps/api/event';
+	import { Menu } from '@tauri-apps/api/menu';
+	import TableClickContextMenu from './context-menu/TableClickContextMenu.svelte';
 
 	interface DatabaseObjects {
 		tables: string[];
@@ -33,6 +36,8 @@
 		functions: string[];
 		sequences: string[];
 	}
+
+	let showMenu = true;
 
 	let { databaseConnection, datasource } = $props<{
 		databaseConnection: DatabaseConnectionInterface[];
@@ -65,9 +70,7 @@
 		}
 	}
 
-	async function getMssqlTablesAndColumns(
-		url: string
-	): Promise<
+	async function getMssqlTablesAndColumns(url: string): Promise<
 		{
 			database_name: string;
 			schemas: { schema_name: string; tables: TableInfoInterface[] }[];
@@ -222,6 +225,9 @@
 	}
 </script>
 
+{#if showMenu}
+	<TableClickContextMenu />
+{/if}
 <main
 	class="menu menu-xs bg-base-200 rounded-box max-w-64 min-w-64 overflow-auto p-1 shadow-sm"
 >

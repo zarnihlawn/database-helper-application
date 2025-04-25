@@ -9,10 +9,7 @@ use database_connection::mongo_database_connection::{
 };
 
 use database_connection::app_database_connection::{
-    app_database_init, create_file_for_database, create_new_query_block, get_content_type,
-    get_database_connection, get_datasource, get_file_collection, get_query_blocks,
-    get_user_by_email, save_query_content_to_the_block, signup_user, store_file_with_database,
-    update_query_block_content_type_id,
+    app_database_init, create_file_for_database, create_new_query_block, delete_query_block, get_content_from_query_block, get_content_type, get_database_connection, get_datasource, get_file_collection, get_query_blocks, get_user_by_email, run_query_block, save_query_content_to_the_block, signup_user, store_file_with_database, update_query_block_content_type_id
 };
 use database_connection::maria_database_connection::{
     save_maria_connection, test_maria_connection,
@@ -106,6 +103,9 @@ pub fn run() {
             get_query_blocks,
             save_query_content_to_the_block,
             update_query_block_content_type_id,
+            delete_query_block,
+            run_query_block,
+            get_content_from_query_block,
             // Sqlite Database
             test_sqlite_connection,
             save_sqlite_connection,

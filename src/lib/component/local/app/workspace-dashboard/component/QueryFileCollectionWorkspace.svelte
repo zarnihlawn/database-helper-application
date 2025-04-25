@@ -72,7 +72,7 @@
 		>
 			<option disabled selected>Pick a file ...</option>
 			{#each fileCollection as collection}
-				<option>{collection.name}</option>
+				<option value={collection.name}>{collection.name}</option>
 			{/each}
 		</select>
 	</section>

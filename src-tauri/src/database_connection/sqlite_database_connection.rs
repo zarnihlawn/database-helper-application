@@ -99,3 +99,30 @@ pub async fn get_database_from_sqlite(url: String) -> Result<Vec<TableInfo>, Str
 
     Ok(table_infos)
 }
+
+pub async fn run_query_block_sqlite(url: String, content: String) -> Result<(), String> {
+    let pool = SqlitePool::connect(&format!("sqlite://{}", url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let result = sqlx::query(&content)
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    for row in result {
+        let values: Vec<String> = (0..row.len())
+            .map(|i| {
+                if let Ok(val) = row.try_get::<i64, _>(i) {
+                    val.to_string()
+                } else if let Ok(val) = row.try_get::<String, _>(i) {
+                    val
+                } else {
+                    "NULL".to_string()
+                }
+            })
+            .collect();
+        println!("Row: {:?}", values);
+    }
+    Ok(())
+}

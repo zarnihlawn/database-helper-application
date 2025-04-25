@@ -15,9 +15,11 @@
 		datasource = data;
 	});
 
-	invoke<DatabaseConnectionInterface[]>('get_database_connection').then((data) => {
-		databaseConnection = data;
-	});
+	invoke<DatabaseConnectionInterface[]>('get_database_connection').then(
+		(data) => {
+			databaseConnection = data;
+		}
+	);
 </script>
 
 <main class="m-2 flex gap-5">
