@@ -104,3 +104,19 @@ pub async fn get_database_from_mongo(url: String) -> Result<Vec<CollectionInfo>,
 
     Ok(collections)
 }
+
+#[tauri::command]
+pub async fn run_query_block_mongo(url: String, content: String) -> Result<(), String> {
+    let mut client_options = ClientOptions::parse(url).await.map_err(|e| e.to_string())?;
+    let server_api = ServerApi::builder().version(ServerApiVersion::V1).build();
+    client_options.server_api = Some(server_api);
+    let client = Client::with_options(client_options).map_err(|e| e.to_string())?;
+
+    let db = client.database("admin");
+
+    db.run_command(doc! { "eval": content })
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}

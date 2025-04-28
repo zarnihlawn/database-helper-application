@@ -259,4 +259,28 @@ pub async fn get_database_from_mssql(url: String) -> Result<Vec<DatabaseInfo>, S
 }
 
 #[tauri::command]
-pub async fn run_query_block_mssql(url: String, content: String) -> Result<(), String> {}
+pub async fn run_query_block_mssql(url: String, content: String) -> Result<(), String> {
+    let (host, port, username, password) = parse_mssql_url(&url)?;
+
+    let mut config = Config::new();
+    config.host(&host);
+    config.port(port);
+    config.authentication(AuthMethod::sql_server(&username, &password));
+
+    let tcp = TcpStream::connect(config.get_addr())
+        .await
+        .map_err(|e| e.to_string())?;
+    tcp.set_nodelay(true).map_err(|e| e.to_string())?;
+
+    let mut client = Client::connect(config, tcp.compat_write())
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // Execute the content query directly
+    client
+        .query(content.as_str(), &[])
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}

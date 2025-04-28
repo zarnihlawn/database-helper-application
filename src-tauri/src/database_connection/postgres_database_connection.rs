@@ -155,13 +155,54 @@ pub async fn get_database_from_postgres(
     Ok(database_schemas)
 }
 
-pub async fn run_query_block_postgresql(url: String, content: String) -> Result<(), String> {
+#[tauri::command]
+pub async fn run_query_block_postgresql(
+    url: String,
+    content: String,
+) -> Result<serde_json::Value, String> {
     let pool = PgPool::connect(&url).await.map_err(|e| e.to_string())?;
 
-    let result = sqlx::query(&content)
-        .fetch_all(&pool)
-        .await
-        .map_err(|e| e.to_string())?;
+    // Determine if the query is a SELECT query
+    let is_select = content.trim().to_uppercase().starts_with("SELECT");
 
-    Ok(())
+    if is_select {
+        // For SELECT queries, fetch and return the results
+        let rows = sqlx::query(&content)
+            .fetch_all(&pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let mut results = Vec::new();
+
+        // Get column names from the first row if available
+        let column_count = if !rows.is_empty() { rows[0].len() } else { 0 };
+
+        for row in rows {
+            let mut row_data = serde_json::Map::new();
+
+            // Add each column value to the result
+            for i in 0..column_count {
+                let column_name = format!("column{}", i);
+                let value = match row.try_get::<serde_json::Value, _>(i) {
+                    Ok(v) => v,
+                    Err(_) => serde_json::Value::Null,
+                };
+                row_data.insert(column_name, value);
+            }
+
+            results.push(serde_json::Value::Object(row_data));
+        }
+
+        Ok(serde_json::json!({ "results": results }))
+    } else {
+        // For non-SELECT queries (INSERT, UPDATE, DELETE, etc.), execute and return affected rows
+        let result = sqlx::query(&content)
+            .execute(&pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(serde_json::json!({
+            "affected_rows": result.rows_affected()
+        }))
+    }
 }

@@ -100,29 +100,150 @@ pub async fn get_database_from_sqlite(url: String) -> Result<Vec<TableInfo>, Str
     Ok(table_infos)
 }
 
-pub async fn run_query_block_sqlite(url: String, content: String) -> Result<(), String> {
+#[tauri::command]
+pub async fn run_query_block_sqlite(
+    url: String,
+    content: String,
+) -> Result<serde_json::Value, String> {
     let pool = SqlitePool::connect(&format!("sqlite://{}", url))
         .await
         .map_err(|e| e.to_string())?;
 
-    let result = sqlx::query(&content)
-        .fetch_all(&pool)
-        .await
-        .map_err(|e| e.to_string())?;
+    // Determine if the query is a SELECT query
+    let is_select = content.trim().to_uppercase().starts_with("SELECT");
 
-    for row in result {
-        let values: Vec<String> = (0..row.len())
-            .map(|i| {
-                if let Ok(val) = row.try_get::<i64, _>(i) {
-                    val.to_string()
-                } else if let Ok(val) = row.try_get::<String, _>(i) {
-                    val
+    if is_select {
+        // First, execute a query to get column names
+        // We'll use a subquery with LIMIT 0 to get the column structure without data
+        let column_query = format!("SELECT * FROM ({}) LIMIT 0", content);
+
+        // Execute the query to get column information
+        let columns = sqlx::query(&column_query)
+            .fetch_all(&pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        // Extract column names from the query
+        let mut column_names = Vec::new();
+
+        // Try to extract column names from the query itself
+        if let Some(select_part) = content.split_once("FROM") {
+            let columns_part = select_part.0.trim();
+
+            // Remove the SELECT keyword
+            let columns_part = columns_part.trim_start_matches("SELECT").trim();
+
+            // Split by commas, handling potential subqueries
+            let mut in_parentheses = 0;
+            let mut current_column = String::new();
+
+            for c in columns_part.chars() {
+                if c == '(' {
+                    in_parentheses += 1;
+                    current_column.push(c);
+                } else if c == ')' {
+                    in_parentheses -= 1;
+                    current_column.push(c);
+                } else if c == ',' && in_parentheses == 0 {
+                    // Process the current column
+                    let column = process_column_name(&current_column);
+                    column_names.push(column);
+                    current_column.clear();
                 } else {
-                    "NULL".to_string()
+                    current_column.push(c);
                 }
-            })
-            .collect();
-        println!("Row: {:?}", values);
+            }
+
+            // Process the last column
+            if !current_column.is_empty() {
+                let column = process_column_name(&current_column);
+                column_names.push(column);
+            }
+        }
+
+        // If we couldn't extract column names from the query, use generic names
+        if column_names.is_empty() && !columns.is_empty() {
+            for i in 0..columns[0].len() {
+                column_names.push(format!("column{}", i));
+            }
+        }
+
+        // Now execute the actual query to get data
+        let rows = sqlx::query(&content)
+            .fetch_all(&pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let mut results = Vec::new();
+
+        for row in rows {
+            let mut row_data = serde_json::Map::new();
+
+            // Add each column value to the result
+            for i in 0..row.len() {
+                let column_name = if i < column_names.len() {
+                    column_names[i].clone()
+                } else {
+                    format!("column{}", i)
+                };
+
+                // Try different types to extract the value
+                let value = if let Ok(v) = row.try_get::<i64, _>(i) {
+                    serde_json::Value::Number(serde_json::Number::from(v))
+                } else if let Ok(v) = row.try_get::<f64, _>(i) {
+                    serde_json::Value::Number(
+                        serde_json::Number::from_f64(v).unwrap_or(serde_json::Number::from(0)),
+                    )
+                } else if let Ok(v) = row.try_get::<String, _>(i) {
+                    serde_json::Value::String(v)
+                } else if let Ok(v) = row.try_get::<bool, _>(i) {
+                    serde_json::Value::Bool(v)
+                } else {
+                    serde_json::Value::Null
+                };
+
+                row_data.insert(column_name, value);
+            }
+
+            results.push(serde_json::Value::Object(row_data));
+        }
+
+        Ok(serde_json::json!({ "results": results }))
+    } else {
+        // For non-SELECT queries (INSERT, UPDATE, DELETE, etc.), execute and return affected rows
+        let result = sqlx::query(&content)
+            .execute(&pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(serde_json::json!({
+            "affected_rows": result.rows_affected(),
+            "last_insert_id": result.last_insert_rowid()
+        }))
     }
-    Ok(())
+}
+
+// Helper function to process a column name from the SELECT query
+fn process_column_name(column: &str) -> String {
+    let column = column.trim();
+
+    // Handle "column AS alias" syntax
+    if let Some(alias) = column.split_once(" AS ") {
+        return alias.1.trim().to_string();
+    }
+
+    // Handle "table.column" syntax
+    if let Some(dot_pos) = column.find('.') {
+        return column[dot_pos + 1..].trim().to_string();
+    }
+
+    // Handle functions like COUNT(*), SUM(column), etc.
+    if column.contains('(') {
+        // Extract the function name
+        let func_name = column.split('(').next().unwrap_or("").trim();
+        return func_name.to_string();
+    }
+
+    // Default case: use the column as is
+    column.to_string()
 }

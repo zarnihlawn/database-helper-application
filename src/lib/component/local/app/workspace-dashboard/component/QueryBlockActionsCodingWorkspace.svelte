@@ -63,12 +63,13 @@
 			queryBlockId: id
 		});
 		let database = selectedDatabaseState.selectedDatabase;
-		await invoke('run_query_block', {
+		let result = await invoke('run_query_block', {
 			queryBlockId: id,
 			databaseSource: database?.datasource_id,
 			databaseConnection: database?.url,
 			content: content
 		});
+		console.log('Query Run Result', result);
 	}
 
 	async function handleLanguageChange(event: Event, blockId: number) {

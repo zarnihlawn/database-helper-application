@@ -8,6 +8,10 @@ use std::fs;
 use std::path::Path;
 use tokio::runtime::Runtime;
 
+use super::maria_database_connection::run_query_block_maria;
+use super::mongo_database_connection::run_query_block_mongo;
+use super::mssql_database_connection::run_query_block_mssql;
+use super::mysql_database_connection::run_query_block_mysql;
 use super::postgres_database_connection::run_query_block_postgresql;
 use super::sqlite_database_connection::run_query_block_sqlite;
 
@@ -572,14 +576,14 @@ pub async fn run_query_block(
     database_source: i64,
     database_connection: String,
     content: String,
-) -> Result<(), String> {
+) -> Result<serde_json::Value, String> {
     match database_source {
         1 => run_query_block_postgresql(database_connection, content).await,
         2 => run_query_block_sqlite(database_connection, content).await,
-        3 => Ok(()),
-        4 => Ok(()),
-        5 => Ok(()),
-        6 => Ok(()),
+        // 3 => run_query_block_mongo(database_connection, content).await,
+        4 => run_query_block_mysql(database_connection, content).await,
+        // 5 => run_query_block_mssql(database_connection, content).await,
+        6 => run_query_block_mysql(database_connection, content).await,
         _ => Err("Invalid database source".to_string()),
     }
 }
@@ -601,4 +605,3 @@ pub async fn get_content_from_query_block(query_block_id: i64) -> Result<String,
 
     Ok(content)
 }
-

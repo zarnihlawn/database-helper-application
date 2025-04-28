@@ -51,3 +51,15 @@ pub async fn save_maria_connection(
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn run_query_block_maria(url: String, content: String) -> Result<(), String> {
+    let pool = MySqlPool::connect(&url).await.map_err(|e| e.to_string())?;
+
+    let _ = sqlx::query(content.as_str())
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}

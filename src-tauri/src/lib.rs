@@ -5,27 +5,33 @@ pub mod modules;
 pub mod database_connection;
 
 use database_connection::mongo_database_connection::{
-    get_database_from_mongo, test_mongo_connection,
+    get_database_from_mongo, run_query_block_mongo, test_mongo_connection,
 };
 
 use database_connection::app_database_connection::{
-    app_database_init, create_file_for_database, create_new_query_block, delete_query_block, get_content_from_query_block, get_content_type, get_database_connection, get_datasource, get_file_collection, get_query_blocks, get_user_by_email, run_query_block, save_query_content_to_the_block, signup_user, store_file_with_database, update_query_block_content_type_id
+    app_database_init, create_file_for_database, create_new_query_block, delete_query_block,
+    get_content_from_query_block, get_content_type, get_database_connection, get_datasource,
+    get_file_collection, get_query_blocks, get_user_by_email, run_query_block,
+    save_query_content_to_the_block, signup_user, store_file_with_database,
+    update_query_block_content_type_id,
 };
 use database_connection::maria_database_connection::{
-    save_maria_connection, test_maria_connection,
+    run_query_block_maria, save_maria_connection, test_maria_connection,
 };
 use database_connection::mongo_database_connection::save_mongo_connection;
 use database_connection::mssql_database_connection::{
-    get_database_from_mssql, save_mssql_connection, test_mssql_connection,
+    get_database_from_mssql, run_query_block_mssql, save_mssql_connection, test_mssql_connection,
 };
 use database_connection::mysql_database_connection::{
-    get_database_from_mysql, save_mysql_connection, test_mysql_connection,
+    get_database_from_mysql, run_query_block_mysql, save_mysql_connection, test_mysql_connection,
 };
 use database_connection::postgres_database_connection::{
-    get_database_from_postgres, save_postgres_connection, test_postgres_connection,
+    get_database_from_postgres, run_query_block_postgresql, save_postgres_connection,
+    test_postgres_connection,
 };
 use database_connection::sqlite_database_connection::{
-    get_database_from_sqlite, save_sqlite_connection, test_sqlite_connection,
+    get_database_from_sqlite, run_query_block_sqlite, save_sqlite_connection,
+    test_sqlite_connection,
 };
 
 use crate::modules::bcrypt_controller::encrypt_bcrypt;
@@ -110,24 +116,30 @@ pub fn run() {
             test_sqlite_connection,
             save_sqlite_connection,
             get_database_from_sqlite,
+            run_query_block_sqlite,
             // Postgres Database
             test_postgres_connection,
             save_postgres_connection,
             get_database_from_postgres,
+            run_query_block_postgresql,
             // Mongo Database
             test_mongo_connection,
             save_mongo_connection,
             get_database_from_mongo,
+            run_query_block_mongo,
             // Mysql Database
             test_mysql_connection,
             save_mysql_connection,
             get_database_from_mysql,
+            run_query_block_mysql,
             // Maria Database
             test_maria_connection,
             save_maria_connection,
+            run_query_block_maria,
             // MSSQL Database
             test_mssql_connection,
             save_mssql_connection,
+            run_query_block_mssql,
             get_database_from_mssql,
             // Dialogs
             open_sqlite_file_selection_dialog,

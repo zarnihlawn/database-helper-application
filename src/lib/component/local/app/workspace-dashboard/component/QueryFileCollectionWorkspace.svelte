@@ -33,7 +33,6 @@
 	}
 	function handleSelectedFile(file: QueryFileInterface) {
 		selectedFileState.selectedFile = file;
-		console.log(selectedFileState.selectedFile);
 	}
 
 	onDestroy(() => {
