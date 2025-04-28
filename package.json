@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
+		"app": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
@@ -48,7 +49,6 @@
 		"prettier-plugin-tailwindcss": "^0.6.11",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
-		"svelte-contextmenu": "^1.0.2",
 		"tailwindcss": "^4.0.0",
 		"typescript": "^5.0.0",
 		"typescript-eslint": "^8.20.0",
@@ -63,6 +63,7 @@
 		"@tauri-apps/plugin-sql": "^2.2.0",
 		"@tauri-apps/plugin-updater": "^2.7.1",
 		"@types/d3": "^7.4.3",
+		"bits-ui": "^1.3.19",
 		"d3": "^7.9.0",
 		"drizzle-orm": "^0.40.0",
 		"drizzle-seed": "^0.3.1",

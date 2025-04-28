@@ -257,3 +257,6 @@ pub async fn get_database_from_mssql(url: String) -> Result<Vec<DatabaseInfo>, S
 
     Ok(database_infos)
 }
+
+#[tauri::command]
+pub async fn run_query_block_mssql(url: String, content: String) -> Result<(), String> {}

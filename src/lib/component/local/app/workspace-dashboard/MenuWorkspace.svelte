@@ -27,25 +27,34 @@
 </script>
 
 <main class="flex w-full justify-between">
-	<div class="join shadow-sm">
-		<div class="tooltip tooltip-right tooltip-success" data-tip="Add a data source">
+	<div class="join">
+		<div
+			class="tooltip tooltip-right tooltip-success"
+			data-tip="Add a data source"
+		>
 			<button class="btn text-success join-item" onclick={handleAddClick}>
 				{@html AddSvg}
 			</button>
 		</div>
-		<div class="tooltip tooltip-right tooltip-warning" data-tip="Refresh all data sources">
+		<div
+			class="tooltip tooltip-right tooltip-warning"
+			data-tip="Refresh all data sources"
+		>
 			<button class="btn text-warning join-item" onclick={handleRefreshClick}>
 				{@html RefreshSvg}
 			</button>
 		</div>
-		<div class="tooltip tooltip-right tooltip-error" data-tip="Remove a data source">
+		<div
+			class="tooltip tooltip-right tooltip-error"
+			data-tip="Remove a data source"
+		>
 			<button class="btn text-error join-item">
 				{@html RemoveSvg}
 			</button>
 		</div>
 	</div>
-	<div class="join shadow-sm">
-		<div class="tooltip tooltip-right tooltip-info shadow-sm" data-tip="More Actions">
+	<div class="join">
+		<div class="tooltip tooltip-right tooltip-info" data-tip="More Actions">
 			<button class="btn text-info join-item">
 				{@html MenuSvg}
 			</button>

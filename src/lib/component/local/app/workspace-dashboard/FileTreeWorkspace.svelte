@@ -16,19 +16,26 @@
 	} from '$lib/model/interface/schema.interface';
 	import { selectedDatabaseState } from '$lib/store/state/selectedDatabase.svelte';
 	import { invoke } from '@tauri-apps/api/core';
-	import type {
-		DatabaseMetadata,
-		TableInfo as PostgresTableInfo
-	} from '$lib/model/interface/postgres.interface';
+
 	import { FileSvg } from '$lib/asset/image/svg/file-svg';
 	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
 	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
 	import { SchemaSvg } from '$lib/asset/image/svg/schema-svg';
 	import type { DatabaseInfo } from '$lib/model/interface/mssql.interface';
 	import { DatabaseSvg } from '$lib/asset/image/svg/database-svg';
-	import { listen } from '@tauri-apps/api/event';
-	import { Menu } from '@tauri-apps/api/menu';
-	import TableClickContextMenu from './context-menu/TableClickContextMenu.svelte';
+
+	import DatabaseContextMenu from '$lib/component/library/context-menu/DatabaseContextMenu.svelte';
+
+	let showMenu = $state(false);
+	let menuX = $state(0);
+	let menuY = $state(0);
+
+	function handleContextMenu(event: MouseEvent) {
+		event.preventDefault();
+		menuX = event.clientX;
+		menuY = event.clientY;
+		showMenu = true;
+	}
 
 	interface DatabaseObjects {
 		tables: string[];
@@ -36,8 +43,6 @@
 		functions: string[];
 		sequences: string[];
 	}
-
-	let showMenu = true;
 
 	let { databaseConnection, datasource } = $props<{
 		databaseConnection: DatabaseConnectionInterface[];
@@ -66,7 +71,7 @@
 			return result;
 		} catch (error) {
 			console.error('Error fetching SQLite info:', error);
-			return []; // Return an empty array in case of error
+			return [];
 		}
 	}
 
@@ -225,9 +230,6 @@
 	}
 </script>
 
-{#if showMenu}
-	<TableClickContextMenu />
-{/if}
 <main
 	class="menu menu-xs bg-base-200 rounded-box max-w-64 min-w-64 overflow-auto p-1 shadow-sm"
 >
@@ -237,7 +239,7 @@
 				{#if database.datasource_id === source.id}
 					<button onclick={() => handleSelectedDatabase(database)}>
 						<li>
-							<details>
+							<details oncontextmenu={handleContextMenu}>
 								<summary>
 									{@html svgMap[source.name]}
 									{database.connection_name}
@@ -596,3 +598,5 @@
 		<li class="text-error text-center">No Database Connection Found</li>
 	{/if}
 </main>
+
+<DatabaseContextMenu x={menuX} y={menuY} show={showMenu} />

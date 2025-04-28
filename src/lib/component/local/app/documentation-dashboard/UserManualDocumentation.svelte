@@ -4,6 +4,17 @@
 	import DockerDashboardTabs from '$lib/asset/image/webp/docker-dashboard-tabs.webp';
 	import DockerContainer from '$lib/asset/image/webp/docker-container-tab.webp';
 	import DockerImage from '$lib/asset/image/webp/docker-image-tab.webp';
+	import DockerPullingImage from '$lib/asset/image/webp/docker-pull-image.webp';
+	import DockerTerminal from '$lib/asset/image/webp/docker-terminal.webp';
+	import { PostgreSQLSvg } from '$lib/asset/image/svg/postgresql-svg';
+	import { MongoDBSvg } from '$lib/asset/image/svg/mongodb-svg';
+	import { MySQLSvg } from '$lib/asset/image/svg/mysql-svg';
+	import { SQLiteSvg } from '$lib/asset/image/svg/sqlite-svg';
+	import { MariaDBSvg } from '$lib/asset/image/svg/mariadb-svg';
+	import { MicrosoftSqlServerSvg } from '$lib/asset/image/svg/microsoft-sql-server-svg';
+	import WorkspaceActionMenu from '$lib/asset/image/webp/workspace-action-menu.webp';
+	import WorkspaceSelectDatabase from '$lib/asset/image/webp/workspace-select-database.webp';
+	import WorkspaceConnectDatabase from '$lib/asset/image/webp/workspace-connect-database.webp';
 </script>
 
 <article
@@ -56,7 +67,7 @@
 				To Start or Restart Docker, click these two button accordingly.
 				<figure>
 					<img
-						class="bg-base-200 rounded-box my-3 mr-3 flex flex-col justify-between gap-3 px-5 py-3 shadow-sm"
+						class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
 						src={DockerStartRestartClick}
 						alt="Docker Start Restart Click"
 					/>
@@ -66,7 +77,7 @@
 				To Stop Docker, click the Stop button.
 				<figure>
 					<img
-						class="bg-base-200 rounded-box my-3 mr-3 flex flex-col justify-between gap-3 px-5 py-3 shadow-sm"
+						class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
 						src={DockerStopClick}
 						alt="Docker Stop Click"
 					/>
@@ -82,7 +93,7 @@
 		<ol>
 			<figure>
 				<img
-					class="bg-base-200 rounded-box my-3 mr-3 flex flex-col justify-between gap-3 px-5 py-3 shadow-sm"
+					class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
 					src={DockerDashboardTabs}
 					alt="Docker Dashboard Tabs"
 				/>
@@ -93,7 +104,7 @@
 					containers.
 					<figure>
 						<img
-							class="bg-base-200 rounded-box my-3 mr-3 flex flex-col justify-between gap-3 px-5 py-3 shadow-sm"
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
 							src={DockerContainer}
 							alt="Docker Container Management"
 						/>
@@ -117,18 +128,68 @@
 					<code>Images</code> tab will help you manage your Docker images.
 					<figure>
 						<img
-							class="bg-base-200 rounded-box my-3 mr-3 flex flex-col justify-between gap-3 px-5 py-3 shadow-sm"
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
 							src={DockerImage}
 							alt="Docker Images Management"
 						/>
 					</figure>
+					<ol>
+						<li>
+							<code> Build Button </code>
+							: This will let you build a container from an image but cannot customize
+							the credential.
+						</li>
+						<li>
+							<code> Delete Button </code>
+							: This will delete the image and its data. It will not be recoverable.
+						</li>
+						<li>
+							<code>More Action Button</code>
+							: This will take you to this documentation page talking about the every
+							action you could do.
+						</li>
+					</ol>
 				</li>
 				<li>
-					<code>Pulling Images</code> tab will let you download Docker images from
-					the registry.
+					<code>Pulling Images</code> tab will let you download Docker images
+					from the registry.
+					<figure>
+						<img
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+							src={DockerPullingImage}
+							alt="Docker Pulling Images"
+						/>
+					</figure>
+					<ol>
+						<li>
+							<code>Search Input</code> : This will let you search for Docker Images
+							directly from official Docker Registry.
+						</li>
+						<li>
+							<code>Download Button</code> : This will let you download the image
+							from the registry into your local. You can find the downloaded images
+							in the images tab.
+						</li>
+					</ol>
 				</li>
 				<li>
-					<code>System Terminal</code> tab will let you access the system terminal.
+					<code>System Terminal</code> tab will let you access the system
+					terminal.
+					<figure>
+						<img
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+							src={DockerTerminal}
+							alt="Docker Terminal"
+						/>
+					</figure>
+					<ol>
+						<li>
+							<code>Command Input</code> : This will let you access the system terminal.
+							You can also use the system built in terminal and the result will be
+							the same. This wil let you have more control and customizability from
+							the docker management.
+						</li>
+					</ol>
 				</li>
 			</ul>
 		</ol>
@@ -136,15 +197,182 @@
 		<li>
 			Real World Example (Getting Started)
 			<ol>
-				<li>Postgres</li>
-				<li>MongoDB</li>
-				<li>MySQL</li>
-				<li>SQLite</li>
-				<li>MariaDB</li>
-				<li>MSSQL</li>
+				<li>
+					Postgres
+					<div class="flex overflow-hidden">
+						<figure
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+						>
+							{@html PostgreSQLSvg('size-20')}
+						</figure>
+					</div>
+					<ul>
+						<li>
+							Pull Image : <code>docker pull postgres</code>
+						</li>
+						<li>
+							Build container : <code
+								>docker run --name postgres -e POSTGRES_PASSWORD=postgres -p
+								5432:5432 -d postgres</code
+							>
+						</li>
+					</ul>
+				</li>
+				<li>
+					MongoDB
+					<div class="flex overflow-hidden">
+						<figure
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+						>
+							{@html MongoDBSvg('size-20')}
+						</figure>
+					</div>
+					<ul>
+						<li>
+							Pull Image : <code>docker pull mongo</code>
+						</li>
+						<li>
+							Build container : <code
+								>docker run --name mongo -p 27017:27017 -e
+								MONGO_INITDB_ROOT_USERNAME=mongo -e
+								MONGO_INITDB_ROOT_PASSWORD=mongo -d mongo</code
+							>
+						</li>
+					</ul>
+				</li>
+				<li>
+					MySQL
+					<div class="flex overflow-hidden">
+						<figure
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+						>
+							{@html MySQLSvg('size-20')}
+						</figure>
+					</div>
+					<ul>
+						<li>
+							Pull Image : <code>docker pull mysql</code>
+						</li>
+						<li>
+							Build container : <code>
+								docker run --name mysql -p 3306:3306 -e MYSQL_USER=mysql -e
+								MYSQL_PASSWORD=mysql -e MYSQL_ROOT_PASSWORD=mysql -d mysql
+							</code>
+						</li>
+					</ul>
+				</li>
+				<li>
+					SQLite
+					<div class="flex overflow-hidden">
+						<figure
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+						>
+							{@html SQLiteSvg('size-20')}
+						</figure>
+					</div>
+					<ul>
+						<li>
+							Choose a local file that is SQLite which you want to use. (.db,
+							.sqlite)
+						</li>
+					</ul>
+				</li>
+				<li>
+					MariaDB
+					<div class="flex overflow-hidden">
+						<figure
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+						>
+							{@html MariaDBSvg('size-20')}
+						</figure>
+					</div>
+					<ul>
+						<li>
+							Pull Image : <code>docker pull mariadb</code>
+						</li>
+						<li>
+							Build container : <code>
+								docker run --name mariadb -p 3306:3306 -e MYSQL_USER=mariadb -e
+								MYSQL_PASSWORD=mariadb -e MYSQL_ROOT_PASSWORD=mariadb -d mariadb
+							</code>
+						</li>
+					</ul>
+				</li>
+				<li>
+					MSSQL
+					<div class="flex overflow-hidden">
+						<figure
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+						>
+							{@html MicrosoftSqlServerSvg('size-20')}
+						</figure>
+					</div>
+					<ul>
+						<li>
+							Pull Image : <code
+								>docker pull
+								mcr.microsoft.com/mssql/server:2022-CU18-ubuntu-22.04</code
+							>
+						</li>
+						<li>
+							Build Container : <code>
+								docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Mssql123!"
+								-p 1433:1433 --name mssql --hostname mssql -d
+								mcr.microsoft.com/mssql/server:2022-CU18-ubuntu-22.04
+							</code>
+						</li>
+					</ul>
+				</li>
 			</ol>
 		</li>
 	</ol>
 
 	<h3 class="text-primary">## Workspace Dashboard</h3>
+
+	<p>
+		This page composed of three main components : <code>action menu</code>,
+		<code>file tree</code>, <code>editor</code>.
+	</p>
+	<ol>
+		<li>
+			Action Menu
+			<figure>
+				<img
+					class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+					src={WorkspaceActionMenu}
+					alt="Workspace Action Menu"
+				/>
+			</figure>
+			<ul>
+				<li>
+					<code>Add Button</code> : this is about adding a database connection
+					to the application. When clicking the button. The dialog will open
+					letting you choose the preferred datasource.
+					<figure>
+						<img
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+							src={WorkspaceSelectDatabase}
+							alt="Workspace Datasource Selection"
+						/>
+					</figure>
+					<ol>
+						<li>
+							<code>Connect Button</code> : this will confirm the datasource, and
+							a dialog will pop up asking you to fill the url credential of the database.
+						</li>
+						<li>
+							<code>Cancel Button</code> : this will cancel the adding process, and
+							closing the dialog
+						</li>
+					</ol>
+				</li>
+				<li>
+					<code>Remove Button</code> : this will remove the database connection from
+					the application.
+				</li>
+			</ul>
+		</li>
+		<li>File Tree</li>
+		<li>Editor</li>
+	</ol>
 </article>
