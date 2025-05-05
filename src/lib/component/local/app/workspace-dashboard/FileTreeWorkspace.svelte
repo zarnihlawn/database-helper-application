@@ -537,7 +537,7 @@
 												<li>
 													<details>
 														<summary>
-															{@html DatabaseSvg('size-5 text-warning')}
+															{@html DatabaseSvg('size-5 text-error')}
 															{dbInfo.database_name}
 														</summary>
 														<ul>
@@ -545,7 +545,7 @@
 																<li>
 																	<details>
 																		<summary>
-																			{@html SchemaSvg('size-5 text-warning')}
+																			{@html SchemaSvg('size-5 text-error')}
 																			{schema.schema_name}
 																		</summary>
 																		<ul>
@@ -554,7 +554,7 @@
 																					<details>
 																						<summary>
 																							{@html TableSvg(
-																								'size-5 text-warning'
+																								'size-5 text-error'
 																							)}
 																							{table.name}
 																						</summary>
@@ -563,7 +563,7 @@
 																								<li>
 																									<div>
 																										{@html ColumnSvg(
-																											'size-5 text-warning'
+																											'size-5 text-error'
 																										)}
 																										{column.name} ({column.data_type})
 																									</div>

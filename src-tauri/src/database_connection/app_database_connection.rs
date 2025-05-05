@@ -8,7 +8,6 @@ use std::fs;
 use std::path::Path;
 use tokio::runtime::Runtime;
 
-use super::maria_database_connection::run_query_block_maria;
 use super::mongo_database_connection::run_query_block_mongo;
 use super::mssql_database_connection::run_query_block_mssql;
 use super::mysql_database_connection::run_query_block_mysql;
@@ -580,9 +579,9 @@ pub async fn run_query_block(
     match database_source {
         1 => run_query_block_postgresql(database_connection, content).await,
         2 => run_query_block_sqlite(database_connection, content).await,
-        // 3 => run_query_block_mongo(database_connection, content).await,
+        3 => run_query_block_mongo(database_connection, content).await,
         4 => run_query_block_mysql(database_connection, content).await,
-        // 5 => run_query_block_mssql(database_connection, content).await,
+        5 => run_query_block_mssql(database_connection, content).await,
         6 => run_query_block_mysql(database_connection, content).await,
         _ => Err("Invalid database source".to_string()),
     }

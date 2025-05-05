@@ -1,5 +1,6 @@
 use super::app_database_connection::get_db_path;
 use serde::{Deserialize, Serialize};
+use serde_json;
 use sqlx::sqlite::SqlitePool;
 use tiberius::{error::Error, AuthMethod, Client, Config};
 use tokio::net::TcpStream;
@@ -258,29 +259,106 @@ pub async fn get_database_from_mssql(url: String) -> Result<Vec<DatabaseInfo>, S
     Ok(database_infos)
 }
 
-#[tauri::command]
-pub async fn run_query_block_mssql(url: String, content: String) -> Result<(), String> {
+pub async fn run_query_block_mssql(
+    url: String,
+    content: String,
+) -> Result<serde_json::Value, String> {
     let (host, port, username, password) = parse_mssql_url(&url)?;
 
     let mut config = Config::new();
     config.host(&host);
     config.port(port);
     config.authentication(AuthMethod::sql_server(&username, &password));
+    config.encryption(tiberius::EncryptionLevel::NotSupported);
 
     let tcp = TcpStream::connect(config.get_addr())
         .await
         .map_err(|e| e.to_string())?;
     tcp.set_nodelay(true).map_err(|e| e.to_string())?;
 
-    let mut client = Client::connect(config, tcp.compat_write())
-        .await
-        .map_err(|e| e.to_string())?;
+    let mut client = match Client::connect(config, tcp.compat_write()).await {
+        Ok(client) => client,
+        Err(Error::Routing { host, port }) => {
+            let mut config = Config::new();
+            config.host(&host);
+            config.port(port);
+            config.authentication(AuthMethod::sql_server(&username, &password));
+            config.encryption(tiberius::EncryptionLevel::NotSupported);
 
-    // Execute the content query directly
-    client
-        .query(content.as_str(), &[])
-        .await
-        .map_err(|e| e.to_string())?;
+            let tcp = TcpStream::connect(config.get_addr())
+                .await
+                .map_err(|e| e.to_string())?;
+            tcp.set_nodelay(true).map_err(|e| e.to_string())?;
 
-    Ok(())
+            Client::connect(config, tcp.compat_write())
+                .await
+                .map_err(|e| e.to_string())?
+        }
+        Err(e) => return Err(e.to_string()),
+    };
+
+    // Determine if the query is a SELECT query
+    let is_select = content.trim().to_uppercase().starts_with("SELECT");
+
+    if is_select {
+        // For SELECT queries, fetch and return the results
+        let mut results = Vec::new();
+        let stream = client
+            .query(content.as_str(), &[])
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let rows = stream
+            .into_first_result()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        for row in rows {
+            let mut row_data = serde_json::Map::new();
+
+            // Get column names from the row
+            let columns = row.columns();
+
+            for (i, column) in columns.iter().enumerate() {
+                let column_name = column.name().to_string();
+
+                // Try different types to extract the value
+                let value = if let Some(v) = row.get::<i64, _>(i) {
+                    serde_json::Value::Number(serde_json::Number::from(v))
+                } else if let Some(v) = row.get::<f64, _>(i) {
+                    serde_json::Value::Number(
+                        serde_json::Number::from_f64(v).unwrap_or(serde_json::Number::from(0)),
+                    )
+                } else if let Some(v) = row.get::<&str, _>(i) {
+                    serde_json::Value::String(v.to_string())
+                } else if let Some(v) = row.get::<bool, _>(i) {
+                    serde_json::Value::Bool(v)
+                } else if let Some(v) = row.get::<&str, _>(i) {
+                    if let Ok(json) = serde_json::from_str::<serde_json::Value>(v) {
+                        json
+                    } else {
+                        serde_json::Value::String(v.to_string())
+                    }
+                } else {
+                    serde_json::Value::Null
+                };
+
+                row_data.insert(column_name, value);
+            }
+
+            results.push(serde_json::Value::Object(row_data));
+        }
+
+        Ok(serde_json::json!({ "results": results }))
+    } else {
+        // For non-SELECT queries (INSERT, UPDATE, DELETE, etc.), execute and return affected rows
+        let result = client
+            .execute(content.as_str(), &[])
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(serde_json::json!({
+            "affected_rows": result.total()
+        }))
+    }
 }

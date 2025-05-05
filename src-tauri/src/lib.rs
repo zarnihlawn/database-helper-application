@@ -5,7 +5,7 @@ pub mod modules;
 pub mod database_connection;
 
 use database_connection::mongo_database_connection::{
-    get_database_from_mongo, run_query_block_mongo, test_mongo_connection,
+    get_database_from_mongo, test_mongo_connection,
 };
 
 use database_connection::app_database_connection::{
@@ -126,12 +126,10 @@ pub fn run() {
             test_mongo_connection,
             save_mongo_connection,
             get_database_from_mongo,
-            run_query_block_mongo,
             // Mysql Database
             test_mysql_connection,
             save_mysql_connection,
             get_database_from_mysql,
-            run_query_block_mysql,
             // Maria Database
             test_maria_connection,
             save_maria_connection,
@@ -139,7 +137,6 @@ pub fn run() {
             // MSSQL Database
             test_mssql_connection,
             save_mssql_connection,
-            run_query_block_mssql,
             get_database_from_mssql,
             // Dialogs
             open_sqlite_file_selection_dialog,

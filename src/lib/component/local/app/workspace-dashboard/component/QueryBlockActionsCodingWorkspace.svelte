@@ -16,6 +16,7 @@
 	let targetFile = $derived(selectedFileState.selectedFile);
 
 	let queryBlocks = $state<QueryBlockInterface[]>([]);
+	let queryBlocksRunResult = $state<Record<number, any>>({});
 	let nextId = $state(1);
 
 	$effect(() => {
@@ -69,7 +70,7 @@
 			databaseConnection: database?.url,
 			content: content
 		});
-		console.log('Query Run Result', result);
+		queryBlocksRunResult[id] = result;
 	}
 
 	async function handleLanguageChange(event: Event, blockId: number) {
@@ -163,6 +164,18 @@
 				theme="vs-dark"
 			/>
 		</section>
+		{#if queryBlocksRunResult[block.id]}
+			<section class="mt-2 max-h-36 overflow-auto px-2">
+				<div class="bg-base-300 rounded-box">
+					<h3 class="mb-2">Query Results:</h3>
+					<pre class="whitespace-pre-wrap">{JSON.stringify(
+							queryBlocksRunResult[block.id],
+							null,
+							2
+						)}</pre>
+				</div>
+			</section>
+		{/if}
 	</main>
 {/each}
 

@@ -156,7 +156,6 @@ pub async fn get_database_from_mysql(
     Ok(database_schemas)
 }
 
-#[tauri::command]
 pub async fn run_query_block_mysql(
     url: String,
     content: String,
