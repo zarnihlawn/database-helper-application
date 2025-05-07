@@ -24,7 +24,7 @@
 
 <main class="m-2 flex gap-5">
 	<div class="flex max-w-64 flex-col gap-4">
-		<MenuWorkspace {datasource} />
+		<MenuWorkspace {datasource} {databaseConnection} />
 		<FileTreeWorkspace {databaseConnection} {datasource} />
 	</div>
 	<div class="flex flex-1">

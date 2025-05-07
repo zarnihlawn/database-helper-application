@@ -604,3 +604,33 @@ pub async fn get_content_from_query_block(query_block_id: i64) -> Result<String,
 
     Ok(content)
 }
+
+#[tauri::command]
+pub async fn remove_database_connection(id: i64) -> Result<(), String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // Start a transaction
+    let mut tx = pool.begin().await.map_err(|e| e.to_string())?;
+
+    // Delete related records in database_file_collection
+    sqlx::query("DELETE FROM database_file_collection WHERE database_connection_id = ?")
+        .bind(id)
+        .execute(&mut *tx) // Use &mut *tx instead of &mut tx
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // Delete the database connection
+    sqlx::query("DELETE FROM database_connection WHERE id = ?")
+        .bind(id)
+        .execute(&mut *tx) // Use &mut *tx instead of &mut tx
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // Commit the transaction
+    tx.commit().await.map_err(|e| e.to_string())?;
+
+    Ok(())
+}

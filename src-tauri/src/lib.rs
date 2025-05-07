@@ -11,8 +11,8 @@ use database_connection::mongo_database_connection::{
 use database_connection::app_database_connection::{
     app_database_init, create_file_for_database, create_new_query_block, delete_query_block,
     get_content_from_query_block, get_content_type, get_database_connection, get_datasource,
-    get_file_collection, get_query_blocks, get_user_by_email, run_query_block,
-    save_query_content_to_the_block, signup_user, store_file_with_database,
+    get_file_collection, get_query_blocks, get_user_by_email, remove_database_connection,
+    run_query_block, save_query_content_to_the_block, signup_user, store_file_with_database,
     update_query_block_content_type_id,
 };
 use database_connection::maria_database_connection::{
@@ -20,10 +20,10 @@ use database_connection::maria_database_connection::{
 };
 use database_connection::mongo_database_connection::save_mongo_connection;
 use database_connection::mssql_database_connection::{
-    get_database_from_mssql, run_query_block_mssql, save_mssql_connection, test_mssql_connection,
+    get_database_from_mssql, save_mssql_connection, test_mssql_connection,
 };
 use database_connection::mysql_database_connection::{
-    get_database_from_mysql, run_query_block_mysql, save_mysql_connection, test_mysql_connection,
+    get_database_from_mysql, save_mysql_connection, test_mysql_connection,
 };
 use database_connection::postgres_database_connection::{
     get_database_from_postgres, run_query_block_postgresql, save_postgres_connection,
@@ -50,6 +50,7 @@ pub mod models;
 
 pub mod information;
 use crate::information::application_information::get_application_version;
+use crate::information::device_information::{get_memory_information, get_os_information};
 
 pub mod dialog;
 use crate::dialog::file_select_dialog::open_sqlite_file_selection_dialog;
@@ -57,6 +58,7 @@ use crate::dialog::file_select_dialog::open_sqlite_file_selection_dialog;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
@@ -112,6 +114,7 @@ pub fn run() {
             delete_query_block,
             run_query_block,
             get_content_from_query_block,
+            remove_database_connection,
             // Sqlite Database
             test_sqlite_connection,
             save_sqlite_connection,
@@ -141,7 +144,9 @@ pub fn run() {
             // Dialogs
             open_sqlite_file_selection_dialog,
             // Information
-            get_application_version
+            get_application_version,
+            get_os_information,
+            get_memory_information
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

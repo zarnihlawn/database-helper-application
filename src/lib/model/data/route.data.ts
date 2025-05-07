@@ -50,7 +50,7 @@ export const RouteDocumentationDashboard: RouteInterface[] = [
 //#region
 export const RouteSettingsDashboard: RouteInterface[] = [
 	{
-		name: 'General',
+		name: 'System',
 		icon: GeneralSettingsSvg,
 		url: '/app/settings-dashboard/general-settings'
 	},

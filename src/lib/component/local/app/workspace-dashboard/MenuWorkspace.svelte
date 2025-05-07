@@ -3,13 +3,20 @@
 	import { MenuSvg } from '$lib/asset/image/svg/menu-svg';
 	import { RefreshSvg } from '$lib/asset/image/svg/refresh-svg';
 	import { RemoveSvg } from '$lib/asset/image/svg/remove-svg';
-	import type { DatasourceInterface } from '$lib/model/interface/schema.interface';
+	import type {
+		DatabaseConnectionInterface,
+		DatasourceInterface
+	} from '$lib/model/interface/schema.interface';
+	import RemoveDatasourceWorkspace from './dialog/RemoveDatasourceWorkspace.svelte';
 	import WorkspaceSelectDatasource from './dialog/SelectDatasourceWorkspace.svelte';
 	import { invoke } from '@tauri-apps/api/core';
 
-	let { datasource } = $props<{
+	let { datasource, databaseConnection } = $props<{
 		datasource: DatasourceInterface[];
+		databaseConnection: DatabaseConnectionInterface[];
 	}>();
+
+	let showRemoveDatasourceDialog = $state(false);
 
 	let showSelectionDialog = $state(false);
 
@@ -23,6 +30,11 @@
 
 	function handleDialogClose() {
 		showSelectionDialog = false;
+		showRemoveDatasourceDialog = false;
+	}
+
+	function handleRemoveClick() {
+		showRemoveDatasourceDialog = true;
 	}
 </script>
 
@@ -48,7 +60,7 @@
 			class="tooltip tooltip-right tooltip-error"
 			data-tip="Remove a data source"
 		>
-			<button class="btn text-error join-item">
+			<button class="btn text-error join-item" onclick={handleRemoveClick}>
 				{@html RemoveSvg}
 			</button>
 		</div>
@@ -64,4 +76,8 @@
 
 {#if showSelectionDialog}
 	<WorkspaceSelectDatasource {datasource} onClose={handleDialogClose} />
+{/if}
+
+{#if showRemoveDatasourceDialog}
+	<RemoveDatasourceWorkspace {datasource} {databaseConnection} onClose={handleDialogClose} />
 {/if}

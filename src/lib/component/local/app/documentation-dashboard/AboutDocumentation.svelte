@@ -1,7 +1,7 @@
 <article class="animate-fade-in-up prose prose-xs lg:prose-sm !max-w-none">
-	<h1 class="text-info"># About</h1>
+	<h1 class="text-primary"># About</h1>
 
-	<h2 class="text-info">## Author</h2>
+	<h2 class="text-primary">## Author</h2>
 	<ul>
 		<li>Name : Zarni Hlawn</li>
 		<li>
@@ -25,7 +25,7 @@
 		</li>
 	</ul>
 
-	<h2 class="text-info">## Application</h2>
+	<h2 class="text-primary">## Application</h2>
 	<p>
 		The Database Helper Application is a web application that allows users to
 		easily manage their databases.

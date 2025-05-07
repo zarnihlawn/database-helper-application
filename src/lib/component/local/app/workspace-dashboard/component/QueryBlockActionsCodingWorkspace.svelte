@@ -166,13 +166,18 @@
 		</section>
 		{#if queryBlocksRunResult[block.id]}
 			<section class="mt-2 max-h-36 overflow-auto px-2">
-				<div class="bg-base-300 rounded-box">
-					<h3 class="mb-2">Query Results:</h3>
-					<pre class="whitespace-pre-wrap">{JSON.stringify(
-							queryBlocksRunResult[block.id],
-							null,
-							2
-						)}</pre>
+				<div class="bg-base-300 rounded-box p-2">
+					{#if queryBlocksRunResult[block.id].error}
+						<h3 class="mb-2 text-error">Query Error:</h3>
+						<pre class="whitespace-pre-wrap text-error">{queryBlocksRunResult[block.id].error}</pre>
+					{:else}
+						<h3 class="mb-2">Query Results:</h3>
+						<pre class="whitespace-pre-wrap">{JSON.stringify(
+								queryBlocksRunResult[block.id],
+								null,
+								2
+							)}</pre>
+					{/if}
 				</div>
 			</section>
 		{/if}
