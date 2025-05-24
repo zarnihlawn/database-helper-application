@@ -11,6 +11,7 @@
 	import { onMount } from 'svelte';
 
 	let appVersion = $state('');
+	let updateLoading = $state(false);
 
 	async function getAppVersion() {
 		appVersion = await invoke('get_application_version');
@@ -19,6 +20,12 @@
 	onMount(() => {
 		getAppVersion();
 	});
+
+	async function handleCheckForUpdates() {
+		updateLoading = true;
+		await checkForAppUpdates(true);
+		updateLoading = false;
+	}
 </script>
 
 <div class="navbar bg-base-100 shadow-sm" data-tauri-drag-region>
@@ -52,9 +59,14 @@
 				<li>
 					<button
 						class="btn btn-primary my-2"
-						onclick={() => checkForAppUpdates(true)}
+						onclick={() => handleCheckForUpdates()}
+						class:btn-disabled={updateLoading}
 					>
-						Check for Updates
+						{#if updateLoading}
+							<span class="loading loading-spinner text-primary"></span>
+						{:else}
+							Check for Updates
+						{/if}
 					</button>
 				</li>
 				<p class="my-2 text-center text-xs opacity-50">
