@@ -52,7 +52,7 @@
 								Database : {datasource.name}
 							</div>
 							<div class="text-sm opacity-60">
-								URL : {selectedDatabase.url}
+								URL : ********
 							</div>
 						</div>
 					</div>

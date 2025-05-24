@@ -359,3 +359,213 @@ fn process_column_name(column: &str) -> String {
     // Default case: use the column as is
     column.to_string()
 }
+
+// Add these struct definitions or update existing ones
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ERDiagramColumn {
+    pub name: String,           // Changed from column_name
+    pub data_type: String,      // Changed from column_type
+    pub is_nullable: bool,
+    pub is_primary_key: bool,
+    pub is_foreign_key: bool,
+    pub references: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ERDiagramTable {
+    pub name: String,           // Changed from table_name
+    pub columns: Vec<ERDiagramColumn>,
+}
+
+#[tauri::command]
+pub async fn get_er_diagram_from_mysql(
+    url: String,
+    database: String,
+) -> Result<Vec<ERDiagramTable>, String> {
+    let pool = MySqlPool::connect(&url).await.map_err(|e| e.to_string())?;
+
+    // Get all tables for the specified database
+    let tables = sqlx::query(
+        "
+        SELECT TABLE_NAME
+        FROM information_schema.TABLES 
+        WHERE TABLE_SCHEMA = ?
+        AND TABLE_TYPE = 'BASE TABLE'
+        ",
+    )
+    .bind(&database)
+    .fetch_all(&pool)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    let mut er_tables = Vec::new();
+
+    // Get primary keys for all tables in the database
+    let primary_keys = sqlx::query(
+        "
+        SELECT TABLE_NAME, COLUMN_NAME
+        FROM information_schema.KEY_COLUMN_USAGE
+        WHERE CONSTRAINT_SCHEMA = ?
+        AND CONSTRAINT_NAME = 'PRIMARY'
+        ",
+    )
+    .bind(&database)
+    .fetch_all(&pool)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    // Create a map of table name to primary key columns
+    let mut primary_key_map: HashMap<String, Vec<String>> = HashMap::new();
+    for row in primary_keys {
+        let table_name: String = row.get("TABLE_NAME");
+        let column_name: String = row.get("COLUMN_NAME");
+
+        primary_key_map
+            .entry(table_name)
+            .or_insert_with(Vec::new)
+            .push(column_name);
+    }
+
+    // Get foreign keys for all tables in the database
+    let foreign_keys = sqlx::query(
+        "
+        SELECT 
+            TABLE_NAME,
+            COLUMN_NAME,
+            REFERENCED_TABLE_NAME,
+            REFERENCED_COLUMN_NAME
+        FROM information_schema.KEY_COLUMN_USAGE
+        WHERE CONSTRAINT_SCHEMA = ?
+        AND REFERENCED_TABLE_NAME IS NOT NULL
+        ",
+    )
+    .bind(&database)
+    .fetch_all(&pool)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    // Create a map of table and column to referenced table and column
+    let mut foreign_key_map: HashMap<(String, String), (String, String)> = HashMap::new();
+    for row in foreign_keys {
+        let table_name: String = row.get("TABLE_NAME");
+        let column_name: String = row.get("COLUMN_NAME");
+        let referenced_table: String = row.get("REFERENCED_TABLE_NAME");
+        let referenced_column: String = row.get("REFERENCED_COLUMN_NAME");
+
+        foreign_key_map.insert(
+            (table_name, column_name),
+            (referenced_table, referenced_column),
+        );
+    }
+
+    // Process each table
+    for table_row in tables {
+        let table_name: String = table_row.get("TABLE_NAME");
+
+        // Get columns for this table
+        let columns = sqlx::query(
+            "
+            SELECT 
+                COLUMN_NAME,
+                DATA_TYPE,
+                IS_NULLABLE,
+                COLUMN_DEFAULT,
+                CHARACTER_MAXIMUM_LENGTH,
+                NUMERIC_PRECISION,
+                NUMERIC_SCALE
+            FROM information_schema.COLUMNS 
+            WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+            ORDER BY ORDINAL_POSITION
+            ",
+        )
+        .bind(&database)
+        .bind(&table_name)
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        let mut er_columns = Vec::new();
+
+        // Process each column
+        for column in columns {
+            let column_name: String = column.get("COLUMN_NAME");
+            let data_type: String = column.get("DATA_TYPE");
+            let is_nullable: String = column.get("IS_NULLABLE");
+
+            // Format the column type with precision/length if available
+            let formatted_type = format_column_type(
+                &data_type,
+                column
+                    .try_get::<Option<i64>, _>("CHARACTER_MAXIMUM_LENGTH")
+                    .unwrap_or(None),
+                column
+                    .try_get::<Option<i64>, _>("NUMERIC_PRECISION")
+                    .unwrap_or(None),
+                column
+                    .try_get::<Option<i64>, _>("NUMERIC_SCALE")
+                    .unwrap_or(None),
+            );
+
+            // Check if this column is a primary key
+            let is_primary_key = primary_key_map
+                .get(&table_name)
+                .map(|pks| pks.contains(&column_name))
+                .unwrap_or(false);
+
+            // Check if this column is a foreign key
+            let fk_reference = foreign_key_map.get(&(table_name.clone(), column_name.clone()));
+            let (is_foreign_key, references) = if let Some((ref_table, ref_column)) = fk_reference {
+                (true, Some(format!("{}({})", ref_table, ref_column)))
+            } else {
+                (false, None)
+            };
+
+            er_columns.push(ERDiagramColumn {
+                name: column_name,              // Changed from column_name
+                data_type: formatted_type,      // Changed from column_type
+                is_nullable: is_nullable == "YES",
+                is_primary_key: is_primary_key,
+                is_foreign_key: is_foreign_key,
+                references,
+            });
+        }
+
+        er_tables.push(ERDiagramTable {
+            name: table_name,               // Changed from table_name
+            columns: er_columns,
+        });
+    }
+
+    Ok(er_tables)
+}
+
+// Helper function to format column type with precision/length
+fn format_column_type(
+    data_type: &str,
+    char_length: Option<i64>,
+    num_precision: Option<i64>,
+    num_scale: Option<i64>,
+) -> String {
+    match data_type.to_lowercase().as_str() {
+        // Character types
+        "char" | "varchar" | "binary" | "varbinary" => {
+            if let Some(length) = char_length {
+                format!("{}({})", data_type, length)
+            } else {
+                data_type.to_string()
+            }
+        }
+        // Numeric types with precision and scale
+        "decimal" | "numeric" => {
+            if let (Some(precision), Some(scale)) = (num_precision, num_scale) {
+                format!("{}({},{})", data_type, precision, scale)
+            } else if let Some(precision) = num_precision {
+                format!("{}({})", data_type, precision)
+            } else {
+                data_type.to_string()
+            }
+        }
+        // Other types
+        _ => data_type.to_string(),
+    }
+}

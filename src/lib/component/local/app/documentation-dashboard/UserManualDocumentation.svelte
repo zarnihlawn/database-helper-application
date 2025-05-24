@@ -15,6 +15,12 @@
 	import WorkspaceActionMenu from '$lib/asset/image/webp/workspace-action-menu.webp';
 	import WorkspaceSelectDatabase from '$lib/asset/image/webp/workspace-select-database.webp';
 	import WorkspaceConnectDatabase from '$lib/asset/image/webp/workspace-connect-database.webp';
+	import WorkspaceSelectRemoveDatabase from '$lib/asset/image/webp/workspace-select-remove-database.webp';
+	import WorkspaceRemoveDatabase from '$lib/asset/image/webp/workspace-remove-database.webp';
+	import WorkspaceFileTree from '$lib/asset/image/webp/workspace-file-tree.webp';
+	import WorkspaceERDiagram from '$lib/asset/image/webp/workspace-er-diagram.webp';
+	import WorkspaceEditor from '$lib/asset/image/webp/workspace-editor.webp';
+	import WorkspaceShareDatabase from '$lib/asset/image/webp/workspace-share-database.webp';
 </script>
 
 <article
@@ -216,6 +222,11 @@
 								5432:5432 -d postgres</code
 							>
 						</li>
+						<li>
+							Connection URL: <code
+								>postgres://postgres:postgres@localhost:5432</code
+							>
+						</li>
 					</ul>
 				</li>
 				<li>
@@ -238,6 +249,9 @@
 								MONGO_INITDB_ROOT_PASSWORD=mongo -d mongo</code
 							>
 						</li>
+						<li>
+							Connection URL: <code>mongodb://mongo:mongo@localhost:27017</code>
+						</li>
 					</ul>
 				</li>
 				<li>
@@ -258,6 +272,9 @@
 								docker run --name mysql -p 3306:3306 -e MYSQL_USER=mysql -e
 								MYSQL_PASSWORD=mysql -e MYSQL_ROOT_PASSWORD=mysql -d mysql
 							</code>
+						</li>
+						<li>
+							Connection URL: <code>mysql://root:mysql@localhost:3306</code>
 						</li>
 					</ul>
 				</li>
@@ -296,6 +313,9 @@
 								MYSQL_PASSWORD=mariadb -e MYSQL_ROOT_PASSWORD=mariadb -d mariadb
 							</code>
 						</li>
+						<li>
+							Connection URL: <code>mysql://root:mysql@localhost:3306</code>
+						</li>
 					</ul>
 				</li>
 				<li>
@@ -320,6 +340,9 @@
 								-p 1433:1433 --name mssql --hostname mssql -d
 								mcr.microsoft.com/mssql/server:2022-CU18-ubuntu-22.04
 							</code>
+						</li>
+						<li>
+							Connection URL: <code>mssql://sa:Mssql123!@localhost:1433</code>
 						</li>
 					</ul>
 				</li>
@@ -357,22 +380,148 @@
 					</figure>
 					<ol>
 						<li>
-							<code>Connect Button</code> : this will confirm the datasource, and
-							a dialog will pop up asking you to fill the url credential of the database.
-						</li>
-						<li>
 							<code>Cancel Button</code> : this will cancel the adding process, and
 							closing the dialog
 						</li>
+						<li>
+							<code>Connect Button</code> : this will confirm the datasource, and
+							a dialog will pop up asking you to fill the url credential of the database.
+							<figure>
+								<img
+									class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm "
+									src={WorkspaceConnectDatabase}
+									alt="Workspace Connect Database"
+								/>
+								</figure>	
+								First you will need to fill the connection name and the database url. The connection name is the name you assign to this database url. Only the connection name will be easily be seen instead of database url. Make sure it is memorable and unique. The database url must follow the format of the given placeholder in order to be able to connect. 
+								
+								<ul>
+									<li>
+										<code>Cancel Button</code> : this will cancel the connecting process and return to the selecting datasource dialog.
+									</li>
+									<li>
+										<code>Test Connection Button</code> : this will test the connection to the database url. If the connection is successful, a success message will be shown. If not, an error message will be shown. This will not save the connection to the application.
+									</li>
+									<li>
+										<code>Connect Button</code> : this will connect to the database url and save the connection to the application. If the connection is successful, a success message will be shown. If not, an error message will be shown.
+									</li>
+								</ul>
+							</li>
+						
 					</ol>
 				</li>
 				<li>
-					<code>Remove Button</code> : this will remove the database connection from
+					<code>Refresh Button</code> : this will refresh the entire current page including database connections
+				</li>
+				<li>
+					<code>Remove Button</code> : this will prompt you with the list of database connection you want to delete.
 					the application.
+					<figure>
+						<img
+							class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+							src={WorkspaceSelectRemoveDatabase}
+							alt="Workspace Remove Database"
+						/>
+						</figure>	
+						<ol>
+							<li>
+								<code>Remove Button</code> : this is for confirming the choice of removing database connection.
+								<figure>
+									<img src={WorkspaceRemoveDatabase} alt="Workspace Remove Database" class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"/>
+									</figure>
+									In order to remove the database, you will need to type in the database url of the connection to confirm the removal. This action is irreversible and will delete the connection from the application.
+							</li>
+						</ol>
 				</li>
 			</ul>
 		</li>
-		<li>File Tree</li>
-		<li>Editor</li>
+		<li>File Tree
+			<figure>
+				<img
+					class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+					src={WorkspaceFileTree}
+					alt="Workspace File Tree"
+				/>
+			</figure>
+			You can see the list of database connections you have added to the application.  You can click on the database connection to open it in the editor. You can also expand to see the schema preview of the database you have focus.
+			<ul>
+				<li>
+					<code>Right Click</code> : you can take a look at the ER diagram of the database and share database connection. Check Feature if the datasource is supported by the application. Make sure you have to right click at the database level.
+					<figure>
+						<img src={WorkspaceERDiagram} alt="Workspace ER Diagram" class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm" />
+					</figure>
+					You can drag around the table and the relationship arrow will always follow scroll in and out to zoom in and out, you can move and play around. 
+					<ul>
+						<code>Reset View</code> : this will reset the view port back to the original position.
+					</ul>
+					<figure>
+						<img src={WorkspaceShareDatabase} alt="Workspace Share Connection" class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm" />
+					</figure>
+					You can see your database connection and copy the link to share it with others. If the database is localhost, it will also show you with your system ip address.
+				</li>
+				
+		</li>
+		<li>Editor
+			<figure>
+				<img
+					class="bg-base-200 rounded-box my-3 mr-3 px-5 py-3 shadow-sm"
+					src={WorkspaceEditor}
+					alt="Workspace Editor"
+				/>
+			</figure>
+
+			You can see the which database is in focus before proceeding to write SQL queries. You can also see the list of tables in the database and the columns in the table. 
+
+			<ul>
+				<li>
+					<code>New File Button</code> : First we will need to create a new file to write our queries. Give it a name and confirm the creation.
+					
+					
+				</li>
+				<li>
+
+					<code>Edit File Button</code> : You can edit the file name if you want to change it.
+				</li>
+				<li>
+
+					<code>Delete File Button</code> : You can delete the file if you no longer need it. This action is irreversible and will delete the file from the application.
+				</li>
+
+				<li>
+					<code>Select File Combo Box</code> : You can see the list of file you have created and you can select the file to open it in the editor. You will see query blocks if you have written queries in the file.
+				</li>
+					<ul>
+						<li>
+							<code>New Query Block	Button </code> : You will have to create a query block in order to write your queries. You can create multiple query blocks in a file and will be saved in the application. 
+						</li>
+						Once you have created a query block, you can write your queries in the editor. Run Block button and Delete Block button will also appear.
+						<ul>
+							<li>
+								<code>
+									Run Block Button
+								</code> : this will run the query block and show the result in the result area. 
+								</li>	
+								<li>
+									<code>
+
+										Delete Block Button 
+									</code> : this will delete the query block and its data. It will not be recoverable.
+								</li>
+								<li>
+									<code>
+										Select Language Support Combo Box
+									</code> : this will let you select the language support for the query block. The application will try to detect the language support automatically but you can also select it manually. It supports Markdown (MD), SQL and JSON.
+								</li>
+						</ul>
+					</ul>
+			</ul>
+		</li>
 	</ol>
+	<h2 class="text-primary">
+		## More Information
+
+	</h2>
+	<p class="">
+		Check Out About Page to contact with the developers. <a href="/app/documentation-dashboard/about-documentation" class="link link-accent"> Go to About Page -> </a>
+	</p>
 </article>

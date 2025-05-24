@@ -1,15 +1,33 @@
 <script lang="ts">
 	import ErDiagramDialogWorkspace from '$lib/component/local/app/workspace-dashboard/dialog/ErDiagramDialogWorkspace.svelte';
-	import { onMount } from 'svelte';
+	import ShareDatabaseConnection from '$lib/component/local/app/workspace-dashboard/dialog/ShareDatabaseConnection.svelte';
+	import type {
+		DatabaseConnectionInterface,
+		DatasourceInterface
+	} from '$lib/model/interface/schema.interface';
+	import { onMount, createEventDispatcher } from 'svelte';
 
-	let { x, y, show } = $props<{ x: number; y: number; show: boolean }>();
+	let { x, y, show, databaseConnection, datasource, databaseName } = $props<{
+		x: number;
+		y: number;
+		show: boolean;
+		databaseConnection: DatabaseConnectionInterface;
+		datasource: DatasourceInterface[];
+		databaseName?: string;
+	}>();
 
+	let erDiagramDialogDatabaseConnection = $state(databaseConnection);
+	
+
+	const dispatch = createEventDispatcher();
 	let menuElement: HTMLDivElement;
 	let showErDiagramDialog = $state(false);
+	let showShareDatabaseConnection = $state(false);
 
 	function handleClickOutside(event: MouseEvent) {
 		if (menuElement && !menuElement.contains(event.target as Node)) {
-			show = false;
+			// Instead of directly modifying show, dispatch an event to the parent
+			dispatch('close');
 		}
 	}
 
@@ -29,14 +47,19 @@
 
 	function generateErDiagram() {
 		showErDiagramDialog = true;
-		show = false;
+		dispatch('close');
+	}
+
+	function shareDatabaseConnection() {
+		showShareDatabaseConnection = true;
+		dispatch('close');
 	}
 </script>
 
 {#if show}
 	<div
 		bind:this={menuElement}
-		class="context-menu"
+		class="context-menu flex flex-col gap-2"
 		style="left: {x}px; top: {y}px;"
 		role="menu"
 		tabindex="0"
@@ -45,12 +68,27 @@
 		<button class="menu-item btn-primary" onclick={generateErDiagram}
 			>Generate ER Diagram</button
 		>
-		<div class="menu-item">Invite Collaborators</div>
+		<button class="menu-item btn-primary" onclick={shareDatabaseConnection}
+			>Share Database Connection</button
+		>
+		
 	</div>
 {/if}
 
 {#if showErDiagramDialog}
-	<ErDiagramDialogWorkspace onClose={() => (showErDiagramDialog = false)} />
+	<ErDiagramDialogWorkspace
+		onClose={() => (showErDiagramDialog = false)}
+		databaseConnection={erDiagramDialogDatabaseConnection}
+		{datasource}
+		databaseName={databaseName}
+	/>
+{/if}
+
+{#if showShareDatabaseConnection}
+	<ShareDatabaseConnection
+		onClose={() => (showShareDatabaseConnection = false)}
+		databaseConnection={erDiagramDialogDatabaseConnection}
+	/>
 {/if}
 
 <style>

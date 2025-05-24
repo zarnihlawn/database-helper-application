@@ -1,22 +1,25 @@
 <script lang="ts">
 	import { errorSvg } from '$lib/asset/image/svg/error-svg';
 	import { successSvg } from '$lib/asset/image/svg/success-svg';
+	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 
-	export let show = false;
-	export let type: 'success' | 'error' = 'success';
-	export let message = '';
+	let {show, type, message} = $props<{
+		show: boolean;
+		type: 'success' | 'error';
+		message: string;
+	}>();
+
+
 </script>
 
 {#if show}
 	<div
-		class="fixed bottom-20 left-1/2 z-50 -translate-x-1/2"
-		in:fly={{ y: 100, duration: 100 }}
-		out:fade={{ duration: 100 }}
+		class="alert"
+		class:alert-success={type === 'success'}
+		class:alert-error={type === 'error'}
 	>
-		<div class="alert alert-{type}">
-			{@html type === 'success' ? successSvg : errorSvg}
-			<span>{message}</span>
-		</div>
+		{@html type === 'success' ? successSvg : errorSvg}
+		<span>{message}</span>
 	</div>
 {/if}

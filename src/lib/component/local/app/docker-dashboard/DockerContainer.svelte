@@ -5,10 +5,24 @@
 	import { StopSvg } from '$lib/asset/image/svg/stop-svg';
 	import { dockerContainersState } from '$lib/store/state/docker.state.svelte';
 	import {
-		deleteDockerContainer,
 		startDockerContainer,
 		stopDockerContainer
 	} from '$lib/tool/docker.tool';
+	import DeleteContainerDialog from './dialog/DeleteContainerDialog.svelte';
+
+	let deleteContainerDialog = $state(false);
+	let deleteContainerId = $state('');
+	let deleteContainerName = $state('');
+
+	function handleDeleteContainerDialog(containerId: string, containerName: string) {
+		deleteContainerId = containerId;
+		deleteContainerName = containerName;
+		deleteContainerDialog = true;
+
+	}
+	function handleDialogClose() {
+		deleteContainerDialog = false;
+	}
 </script>
 
 <section>
@@ -87,7 +101,7 @@
 				{/if}
 				<button
 					class="btn btn-square btn-ghost text-error"
-					onclick={() => deleteDockerContainer(container.id)}
+					onclick={() => handleDeleteContainerDialog(container.id, container.name)}
 				>
 					<div
 						class="tooltip tooltip-left tooltip-error"
@@ -110,3 +124,11 @@
 		<p class="text-error m-4">No Containers found Or Docker is not running</p>
 	{/if}
 </section>
+
+{#if deleteContainerDialog}
+	<DeleteContainerDialog
+		containerId={deleteContainerId}
+		containerName={deleteContainerName}
+		onClose={handleDialogClose}
+	/>
+{/if}

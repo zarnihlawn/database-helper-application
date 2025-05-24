@@ -6,6 +6,7 @@ import { ContainerSvg } from '$lib/asset/image/svg/container-svg';
 import { GeneralSettingsSvg } from '$lib/asset/image/svg/general-settings-svg';
 import { ImageSvg } from '$lib/asset/image/svg/image-svg';
 import { MaintenanceSvg } from '$lib/asset/image/svg/maintenance-svg';
+import { NoticeSvg } from '$lib/asset/image/svg/notice-svg';
 import { PullSvg } from '$lib/asset/image/svg/pull-svg';
 import { ReleaseNotes } from '$lib/asset/image/svg/release-notes-svg';
 import { ShortcutKeySvg } from '$lib/asset/image/svg/shortcut-key-svg';
@@ -42,6 +43,11 @@ export const RouteDocumentationDashboard: RouteInterface[] = [
 		name: 'About',
 		icon: AboutSvg,
 		url: '/app/documentation-dashboard/about-documentation'
+	},
+	{
+		name: 'Features',
+		icon: NoticeSvg('me-2 size-5'),
+		url: '/app/documentation-dashboard/feature-documentation'
 	}
 ];
 //#endregion

@@ -33,9 +33,9 @@
 		MSSQL: MicrosoftSqlServerSvg('size-11')
 	};
 
-	function handleShowConfirmRemovingDialog(id: number, url: string) {
+	function handleShowConfirmRemovingDialog(id: number, name: string, url: string) {
 		showConfirmRemovingDialog = true;
-		confirmDialogKeyword = url;
+		confirmDialogKeyword = name;
 		selectedDatabaseConnectionId = id;
 	}
 
@@ -59,55 +59,56 @@
 </script>
 
 <div class="modal modal-open">
-	<div
-		class="modal-box flex h-[70vh] w-11/12 max-w-5xl flex-col justify-between gap-3"
-	>
-		<h2 class="text-2xl font-bold">Remove a Database Connection</h2>
+  <div
+    class="modal-box flex h-[70vh] w-11/12 max-w-5xl flex-col"
+  >
+    <h2 class="text-2xl font-bold mb-4">Remove a Database Connection</h2>
 
-		<div class="body overflow-y-auto">
-			<ul class="list bg-base-100 rounded-box shadow-md">
-				{#each databaseConnection as databaseConnection, index}
-					<li class="list-row">
-						<div class="text-4xl font-thin tabular-nums opacity-30">
-							{(index + 1).toString().padStart(2, '0')}
-						</div>
-						<div>
-							{#each datasource as datasource}
-								{#if databaseConnection.datasource_id === datasource.id}
-									{@html svgMap[datasource.name]}
-								{/if}
-							{/each}
-						</div>
-						<div class="list-col-grow">
-							<div>{databaseConnection.connection_name}</div>
-							<div class="text-xs font-semibold opacity-60">
-								{databaseConnection.url}
-							</div>
-						</div>
-						<div
-							class="tooltip tooltip-left tooltip-error"
-							data-tip="delete this database connection"
-						>
-							<button
-								class="btn btn-square btn-ghost text-error"
-								onclick={() =>
-									handleShowConfirmRemovingDialog(
-										databaseConnection.id,
-										databaseConnection.url
-									)}
-							>
-								{@html RemoveSvg}
-							</button>
-						</div>
-					</li>
-				{/each}
-			</ul>
-		</div>
+    <div class="body overflow-y-auto flex-grow">
+      <ul class="list bg-base-100 rounded-box shadow-md">
+        {#each databaseConnection as databaseConnection, index}
+          <li class="list-row">
+            <div class="text-4xl font-thin tabular-nums opacity-30">
+              {(index + 1).toString().padStart(2, '0')}
+            </div>
+            <div>
+              {#each datasource as datasource}
+                {#if databaseConnection.datasource_id === datasource.id}
+                  {@html svgMap[datasource.name]}
+                {/if}
+              {/each}
+            </div>
+            <div class="list-col-grow">
+              <div>{databaseConnection.connection_name}</div>
+              <div class="text-xs font-semibold opacity-60">
+                {databaseConnection.url}
+              </div>
+            </div>
+            <div
+              class="tooltip tooltip-left tooltip-error"
+              data-tip="delete this database connection"
+            >
+              <button
+                class="btn btn-square btn-ghost text-error"
+                onclick={() =>
+                  handleShowConfirmRemovingDialog(
+                    databaseConnection.id,
+										databaseConnection.connection_name,
+                    databaseConnection.url
+                  )}
+              >
+                {@html RemoveSvg}
+              </button>
+            </div>
+          </li>
+        {/each}
+      </ul>
+    </div>
 
-		<div class="modal-action justify-end">
-			<button class="btn btn-error" onclick={handleClose}>Cancel</button>
-		</div>
-	</div>
+    <div class="modal-action justify-end mt-4">
+      <button class="btn btn-error" onclick={handleClose}>Cancel</button>
+    </div>
+  </div>
 </div>
 
 {#if showConfirmRemovingDialog}

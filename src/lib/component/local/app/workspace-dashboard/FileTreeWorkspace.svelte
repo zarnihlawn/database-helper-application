@@ -29,12 +29,32 @@
 	let showMenu = $state(false);
 	let menuX = $state(0);
 	let menuY = $state(0);
+	let menuTimeout: number | undefined = undefined;
 
-	function handleContextMenu(event: MouseEvent) {
+	let erDiagramDialogDatabaseConnection = $state<DatabaseConnectionInterface>();
+	let erDiagramDialogDatabase = $state();
+
+	function handleContextMenu(
+		event: MouseEvent,
+		databaseConnection: DatabaseConnectionInterface,
+		schemaName?: string
+	) {
 		event.preventDefault();
 		menuX = event.clientX;
 		menuY = event.clientY;
 		showMenu = true;
+		erDiagramDialogDatabaseConnection = databaseConnection;
+		erDiagramDialogDatabase = schemaName;
+
+		// Clear any existing timeout
+		if (menuTimeout) {
+			clearTimeout(menuTimeout);
+		}
+
+		// Set a new timeout to close the menu after 5 seconds
+		menuTimeout = window.setTimeout(() => {
+			showMenu = false;
+		}, 3000);
 	}
 
 	interface DatabaseObjects {
@@ -173,9 +193,7 @@
 		}
 	}
 
-	async function getMySQLTablesAndColumns(
-		url: string
-	): Promise<{ schema_name: string; tables: TableInfoInterface[] }[]> {
+	async function getMySQLTablesAndColumns(url: string): Promise<any[]> {
 		try {
 			const result = await invoke<
 				Record<
@@ -194,6 +212,9 @@
 				url: url
 			});
 
+			// Add this line to see the actual structure
+			console.log('MySQL result structure:', JSON.stringify(result, null, 2));
+
 			// Transform the data to group tables by schema
 			const schemaInfos: {
 				schema_name: string;
@@ -206,8 +227,8 @@
 						tables.push({
 							name: table.name,
 							columns: table.columns.map((column) => ({
-								name: column.name,
-								data_type: column.data_type
+								name: column.name || '',
+								data_type: column.data_type || ''
 							}))
 						});
 					}
@@ -239,11 +260,21 @@
 				{#if database.datasource_id === source.id}
 					<button onclick={() => handleSelectedDatabase(database)}>
 						<li>
-							<details oncontextmenu={handleContextMenu}>
-								<summary>
-									{@html svgMap[source.name]}
-									{database.connection_name}
-								</summary>
+							<details>
+								{#if source.name === 'SQLite'}
+									<summary
+										oncontextmenu={(event) =>
+											handleContextMenu(event, database)}
+									>
+										{@html svgMap[source.name]}
+										{database.connection_name}
+									</summary>
+								{:else}
+									<summary>
+										{@html svgMap[source.name]}
+										{database.connection_name}
+									</summary>
+								{/if}
 								{#if source.name === 'SQLite'}
 									{#await getSQLiteTablesAndColumns(database.url)}
 										<p>Loading tables and columns...</p>
@@ -283,7 +314,10 @@
 											{#each Object.entries(databaseInfo) as [dbName, schemas]}
 												<li>
 													<details>
-														<summary>
+														<summary
+															oncontextmenu={(event) =>
+																handleContextMenu(event, database)}
+														>
 															{@html DatabaseSvg('size-5 text-info')}
 															{dbName}
 														</summary>
@@ -415,7 +449,10 @@
 											{#each groupedCollections as group}
 												<li>
 													<details>
-														<summary>
+														<summary
+															oncontextmenu={(event) =>
+																handleContextMenu(event, database)}
+														>
 															{@html FolderSvg('size-5 text-success')}
 															{group.database_name}
 														</summary>
@@ -446,7 +483,14 @@
 											{#each schemaInfos as schema}
 												<li>
 													<details>
-														<summary>
+														<summary
+															oncontextmenu={(event) =>
+																handleContextMenu(
+																	event,
+																	database,
+																	schema.schema_name
+																)}
+														>
 															{@html SchemaSvg('size-5 text-warning')}
 															{schema.schema_name}
 														</summary>
@@ -491,7 +535,14 @@
 											{#each schemaInfos as schema}
 												<li>
 													<details>
-														<summary>
+														<summary
+															oncontextmenu={(event) =>
+																handleContextMenu(
+																	event,
+																	database,
+																	schema.schema_name
+																)}
+														>
 															{@html SchemaSvg('size-5 text-warning')}
 															{schema.schema_name}
 														</summary>
@@ -536,7 +587,10 @@
 											<ul>
 												<li>
 													<details>
-														<summary>
+														<summary
+															oncontextmenu={(event) =>
+																handleContextMenu(event, database)}
+														>
 															{@html DatabaseSvg('size-5 text-error')}
 															{dbInfo.database_name}
 														</summary>
@@ -599,4 +653,13 @@
 	{/if}
 </main>
 
-<DatabaseContextMenu x={menuX} y={menuY} show={showMenu} />
+{#if erDiagramDialogDatabaseConnection}
+	<DatabaseContextMenu
+		x={menuX}
+		y={menuY}
+		show={showMenu}
+		databaseConnection={erDiagramDialogDatabaseConnection}
+		{datasource}
+		databaseName={erDiagramDialogDatabase as string | undefined}
+	/>
+{/if}

@@ -23,16 +23,20 @@ use database_connection::mssql_database_connection::{
     get_database_from_mssql, save_mssql_connection, test_mssql_connection,
 };
 use database_connection::mysql_database_connection::{
-    get_database_from_mysql, save_mysql_connection, test_mysql_connection,
+    get_database_from_mysql, get_er_diagram_from_mysql, save_mysql_connection,
+    test_mysql_connection,
 };
 use database_connection::postgres_database_connection::{
     get_database_from_postgres, run_query_block_postgresql, save_postgres_connection,
     test_postgres_connection,
 };
 use database_connection::sqlite_database_connection::{
-    get_database_from_sqlite, run_query_block_sqlite, save_sqlite_connection,
-    test_sqlite_connection,
+    get_database_from_sqlite, get_er_diagram_from_sqlite, run_query_block_sqlite,
+    save_sqlite_connection, test_sqlite_connection,
 };
+use information::network_information::get_ipv4_address;
+use modules::route_controller::{go_to_tab_four, go_to_tab_one, go_to_tab_three, go_to_tab_two};
+use tauri_plugin_global_shortcut::ShortcutState;
 
 use crate::modules::bcrypt_controller::encrypt_bcrypt;
 use crate::modules::docker_controller::{
@@ -63,6 +67,59 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             app_database_init();
+
+            #[cfg(desktop)]
+            {
+                use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
+
+                let ctrl_n_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyN);
+                let ctrl_1_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::Digit1);
+                let ctrl_2_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::Digit2);
+                let ctrl_3_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::Digit3);
+                let ctrl_4_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::Digit4);
+                let ctrl_s_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyS);
+
+                app.handle().plugin(
+                    tauri_plugin_global_shortcut::Builder::new()
+                        .with_handler(move |app_handle, shortcut, event| match shortcut {
+                            s if s == &ctrl_n_shortcut => {}
+                            s if s == &ctrl_1_shortcut => {
+                                if event.state() == ShortcutState::Pressed {
+                                    go_to_tab_one(app_handle.clone()).unwrap();
+                                }
+                            }
+                            s if s == &ctrl_2_shortcut => {
+                                if event.state() == ShortcutState::Pressed {
+                                    go_to_tab_two(app_handle.clone()).unwrap();
+                                }
+                            }
+                            s if s == &ctrl_3_shortcut => {
+                                if event.state() == ShortcutState::Pressed {
+                                    go_to_tab_three(app_handle.clone()).unwrap();
+                                }
+                            }
+                            s if s == &ctrl_4_shortcut => {
+                                if event.state() == ShortcutState::Pressed {
+                                    go_to_tab_four(app_handle.clone()).unwrap();
+                                }
+                            }
+                            s if s == &ctrl_s_shortcut => {}
+                            _ => {
+                                println!("Unhandled shortcut: {:?}", shortcut);
+                            }
+                        })
+                        .build(),
+                )?;
+
+                // Register all shortcuts
+                let shortcut_manager = app.global_shortcut();
+                shortcut_manager.register(ctrl_n_shortcut)?;
+                shortcut_manager.register(ctrl_1_shortcut)?;
+                shortcut_manager.register(ctrl_2_shortcut)?;
+                shortcut_manager.register(ctrl_3_shortcut)?;
+                shortcut_manager.register(ctrl_4_shortcut)?;
+                shortcut_manager.register(ctrl_s_shortcut)?;
+            }
 
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -120,6 +177,7 @@ pub fn run() {
             save_sqlite_connection,
             get_database_from_sqlite,
             run_query_block_sqlite,
+            get_er_diagram_from_sqlite,
             // Postgres Database
             test_postgres_connection,
             save_postgres_connection,
@@ -133,6 +191,7 @@ pub fn run() {
             test_mysql_connection,
             save_mysql_connection,
             get_database_from_mysql,
+            get_er_diagram_from_mysql,
             // Maria Database
             test_maria_connection,
             save_maria_connection,
@@ -146,7 +205,8 @@ pub fn run() {
             // Information
             get_application_version,
             get_os_information,
-            get_memory_information
+            get_memory_information,
+            get_ipv4_address,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

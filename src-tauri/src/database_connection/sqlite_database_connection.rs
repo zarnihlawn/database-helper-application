@@ -247,3 +247,116 @@ fn process_column_name(column: &str) -> String {
     // Default case: use the column as is
     column.to_string()
 }
+
+#[tauri::command]
+pub async fn get_er_diagram_from_sqlite(url: String) -> Result<String, String> {
+    let pool = SqlitePool::connect(&format!("sqlite://{}", url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // Get all tables
+    let tables = sqlx::query("SELECT name FROM sqlite_master WHERE type='table'")
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut er_data = Vec::new();
+
+    for table in tables {
+        let table_name: String = table.get(0);
+
+        // Skip SQLite internal tables
+        if table_name.starts_with("sqlite_") {
+            continue;
+        }
+
+        // Get columns for each table
+        let columns = sqlx::query(&format!("PRAGMA table_info('{}')", table_name))
+            .fetch_all(&pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        // Get foreign keys for this table
+        let foreign_keys = sqlx::query(&format!("PRAGMA foreign_key_list('{}')", table_name))
+            .fetch_all(&pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let mut column_data = Vec::new();
+
+        // Process columns
+        for column in columns {
+            let column_name: String = column.get(1);
+            let column_type: String = column.get(2);
+            let not_null: i64 = column.get(3);
+            let default_value: Option<String> = column.try_get(4).unwrap_or(None);
+            let is_pk: i64 = column.get(5);
+
+            // Check if this column is a foreign key
+            let mut is_fk = false;
+            let mut references = String::new();
+
+            for fk in &foreign_keys {
+                let fk_column: String = fk.get(3);
+                if fk_column == column_name {
+                    is_fk = true;
+                    let ref_table: String = fk.get(2);
+                    let ref_column: String = fk.get(4);
+                    references = format!("{}({})", ref_table, ref_column);
+                    break;
+                }
+            }
+
+            // Build column object
+            let mut column_obj = serde_json::Map::new();
+            column_obj.insert(
+                "columnName".to_string(),
+                serde_json::Value::String(column_name),
+            );
+            column_obj.insert(
+                "columnType".to_string(),
+                serde_json::Value::String(column_type),
+            );
+            column_obj.insert(
+                "isNullable".to_string(),
+                serde_json::Value::Bool(not_null == 0),
+            );
+
+            if is_pk == 1 {
+                column_obj.insert("isPrimaryKey".to_string(), serde_json::Value::Bool(true));
+            }
+
+            if is_fk {
+                column_obj.insert("isForeignKey".to_string(), serde_json::Value::Bool(true));
+                column_obj.insert(
+                    "references".to_string(),
+                    serde_json::Value::String(references),
+                );
+            }
+
+            if let Some(default_val) = default_value {
+                column_obj.insert(
+                    "default".to_string(),
+                    serde_json::Value::String(default_val),
+                );
+            }
+
+            column_data.push(serde_json::Value::Object(column_obj));
+        }
+
+        // Build table object
+        let mut table_obj = serde_json::Map::new();
+        table_obj.insert(
+            "tableName".to_string(),
+            serde_json::Value::String(table_name),
+        );
+        table_obj.insert("columns".to_string(), serde_json::Value::Array(column_data));
+
+        er_data.push(serde_json::Value::Object(table_obj));
+    }
+
+    // Convert to JSON string
+    let json_data = serde_json::to_string(&er_data).map_err(|e| e.to_string())?;
+
+    Ok(json_data)
+}

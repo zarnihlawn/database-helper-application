@@ -4,10 +4,24 @@
 	import { MenuSvg } from '$lib/asset/image/svg/menu-svg';
 	import { dockerContainersState, dockerImagesState } from '$lib/store/state/docker.state.svelte';
 	import { deleteDockerImage } from '$lib/tool/docker.tool';
+	import DeleteImageDialog from './dialog/DeleteImageDialog.svelte';
 	import DockerBuildContainerDialog from './dialog/DockerBuildContainerDialog.svelte';
 
 	let showBuildDialog = $state(false);
 	let selectedImage = $state<string | null>(null);
+
+		let deleteImageDialog = $state(false);
+		let deleteImageId = $state('');
+		let deleteImageName = $state('');
+
+		function handleDeleteImageDialog(imageId: string, imageName: string) {
+			deleteImageId = imageId;
+			deleteImageName = imageName;
+			deleteImageDialog = true;
+		}
+		function handleDialogClose() {
+			deleteImageDialog = false;
+		}
 
 	function handleBuildClick(image: string) {
 		selectedImage = image;
@@ -83,7 +97,7 @@
 				</button>
 				<button
 					class="btn btn-square btn-ghost text-error"
-					onclick={() => deleteDockerImage(image.image_id)}
+					onclick={() => handleDeleteImageDialog(image.image_id, image.repository)}
 				>
 					<div class="tooltip tooltip-left tooltip-error" data-tip="Delete Image">
 						{@html DeleteSvg('size-7')}
@@ -106,5 +120,13 @@
 		image={selectedImage}
 		onSuccess={handleBuildSuccess}
 		onClose={handleBuildClose}
+	/>
+{/if}
+
+{#if deleteImageDialog}
+	<DeleteImageDialog
+		imageId={deleteImageId}
+		imageName={deleteImageName}
+		onClose={handleDialogClose}
 	/>
 {/if}

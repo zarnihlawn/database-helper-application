@@ -1,7 +1,7 @@
 {
 	"name": "database-helper-application",
 	"private": true,
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -60,6 +60,7 @@
 		"@libsql/client": "^0.14.0",
 		"@tauri-apps/api": "^2.3.0",
 		"@tauri-apps/plugin-dialog": "^2.2.1",
+		"@tauri-apps/plugin-global-shortcut": "^2.2.0",
 		"@tauri-apps/plugin-os": "^2.2.1",
 		"@tauri-apps/plugin-sql": "^2.2.0",
 		"@tauri-apps/plugin-updater": "^2.7.1",
