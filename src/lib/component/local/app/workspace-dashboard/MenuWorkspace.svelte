@@ -7,6 +7,7 @@
 		DatabaseConnectionInterface,
 		DatasourceInterface
 	} from '$lib/model/interface/schema.interface';
+	import { goToRoute } from '$lib/util/router.util';
 	import RemoveDatasourceWorkspace from './dialog/RemoveDatasourceWorkspace.svelte';
 	import WorkspaceSelectDatasource from './dialog/SelectDatasourceWorkspace.svelte';
 	import { invoke } from '@tauri-apps/api/core';
@@ -35,6 +36,9 @@
 
 	function handleRemoveClick() {
 		showRemoveDatasourceDialog = true;
+	}
+	function goToDocumentationPage() {
+		goToRoute('/app/documentation-dashboard/user-manual-documentation');
 	}
 </script>
 
@@ -67,7 +71,7 @@
 	</div>
 	<div class="join">
 		<div class="tooltip tooltip-right tooltip-info" data-tip="More Actions">
-			<button class="btn text-info join-item">
+			<button class="btn text-info join-item" onclick={goToDocumentationPage}>
 				{@html MenuSvg}
 			</button>
 		</div>
@@ -79,5 +83,9 @@
 {/if}
 
 {#if showRemoveDatasourceDialog}
-	<RemoveDatasourceWorkspace {datasource} {databaseConnection} onClose={handleDialogClose} />
+	<RemoveDatasourceWorkspace
+		{datasource}
+		{databaseConnection}
+		onClose={handleDialogClose}
+	/>
 {/if}

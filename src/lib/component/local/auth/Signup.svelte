@@ -12,6 +12,7 @@
 	let confirmPassword = $state('');
 
 	let user = $derived(userState.user);
+	let showPassword = $state(false);
 
 	onMount(() => {
 		if (user) {
@@ -25,11 +26,18 @@
 		} else {
 			await invoke('signup_user', { name, email, password });
 			const result: UserInterface = await invoke('get_user_by_email', { email, password });
+			console.log("Result :", result)
 			if (result) {
 				const id: number = result.id;
 				const name: string = result.name;
 				const email: string = result.email;
-				setUserToLocalStorage({ id, name, email });
+				try {
+
+					setUserToLocalStorage({ id, name, email });
+				}
+				catch( error ) {
+
+				}
 				goToRoute('/auth/profile');
 			}
 		}
@@ -60,13 +68,23 @@
 			<label for="password" class="fieldset-label">Password</label>
 			<div class="join">
 				<input
-					type="password"
+					type={showPassword ? "text" : "password"}
 					name="password"
 					class="input join-item w-full"
 					placeholder="Password"
 					bind:value={password}
 				/>
-				<button class="btn join-item">Show</button>
+				<button
+					class="btn join-item"
+					type="button"
+					onclick={() => (showPassword = !showPassword)}
+				>
+					{#if showPassword}
+
+					Hide{:else}
+Show
+					{/if}
+				</button>
 			</div>
 
 			<label for="confirmPassword" class="fieldset-label">Confirm Password</label>
@@ -82,9 +100,7 @@
 			<p>
 				Already have an account? <a href="/auth/login" class="link text-primary">Login</a>
 			</p>
-			<p>
-				Forgot password? <a href="/auth/reset-password" class="link text-primary">Reset</a>
-			</p>
+			
 		</fieldset>
 	</form>
 </main>

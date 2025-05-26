@@ -23,9 +23,6 @@ export async function checkForAppUpdates(onUserClick: boolean = false) {
 		);
 		if (yes) {
 			await update.downloadAndInstall();
-			// Restart the app after the update is installed by calling the Tauri command that handles restart for your app
-			// It is good practice to shut down any background processes gracefully before restarting
-			// As an alternative, you could ask the user to restart the app manually
 			await invoke('graceful_restart');
 		}
 	} else if (onUserClick) {

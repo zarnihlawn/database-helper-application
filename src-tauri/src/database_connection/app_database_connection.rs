@@ -80,31 +80,14 @@ async fn create_tables() {
         .await
         .unwrap();
 
-    // user_authentication_type
-    sqlx::query(
-        "
-        CREATE TABLE IF NOT EXISTS user_authentication_type (
-            id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-            type TEXT NOT NULL,
-            description TEXT NOT NULL
-        );
-        ",
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
     // user
     sqlx::query(
         "
         CREATE TABLE IF NOT EXISTS user (
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-            authentication_type_id INTEGER NOT NULL,
             name TEXT NOT NULL,
             password TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE,
-            secondary_email TEXT,
-            FOREIGN KEY(authentication_type_id) REFERENCES user_authentication_type(id)
+            email TEXT NOT NULL UNIQUE
         );
         ",
     )
@@ -181,7 +164,7 @@ async fn create_tables() {
             content_type_id INTEGER NOT NULL,
             serial_order INTEGER,
             query_content_block TEXT,
-            FOREIGN KEY(query_file_id) REFERENCES query_file(id),
+            FOREIGN KEY(query_file_id) REFERENCES query_file(id) ON DELETE CASCADE,
             FOREIGN KEY(content_type_id) REFERENCES content_type(id)
         );
         ",
@@ -198,7 +181,7 @@ async fn create_tables() {
             database_connection_id INTEGER NOT NULL,
             query_file_id INTEGER NOT NULL,
             FOREIGN KEY(database_connection_id) REFERENCES database_connection(id),
-            FOREIGN KEY(query_file_id) REFERENCES query_file(id)
+            FOREIGN KEY(query_file_id) REFERENCES query_file(id) ON DELETE CASCADE
         );
         ",
     )
@@ -231,21 +214,6 @@ async fn seed_database() {
             .unwrap();
     }
 
-    let user_auth_inserts = vec![
-        ("guest", "Empty authentication type, your workspaces will be public and can be access by other users on this device."),
-        ("email and password", "Basic authentication type, it will grant you your own private workspace."),
-        ("Verified", "Advanced authentication type, it will allow you to collaborate with others."),
-    ];
-
-    for (auth_type, auth_desc) in user_auth_inserts {
-        sqlx::query("INSERT INTO user_authentication_type (type, description) VALUES (?, ?)")
-            .bind(auth_type)
-            .bind(auth_desc)
-            .execute(&pool)
-            .await
-            .unwrap();
-    }
-
     let content_type_inserts = vec![
         ("MD", "A Markdown content type."),
         ("JSON", "A JSON content type."),
@@ -270,7 +238,7 @@ pub async fn get_user_by_email(email: String, password: String) -> Result<User, 
         .map_err(|e| e.to_string())?;
 
     let user = sqlx::query(
-        "SELECT id, authentication_type_id, name, password, email, secondary_email FROM user WHERE email = ? AND password = ?"
+        "SELECT id, name, password, email FROM user WHERE email = ? AND password = ?"
     )
     .bind(email)
     .bind(password)
@@ -281,11 +249,9 @@ pub async fn get_user_by_email(email: String, password: String) -> Result<User, 
     match user {
         Some(row) => Ok(User {
             id: row.get(0),
-            authentication_type_id: row.get(1),
-            name: row.get(2),
-            password: row.get(3),
-            email: row.get(4),
-            secondary_email: row.get(5),
+            name: row.get(1),
+            password: row.get(2),
+            email: row.get(3),
         }),
         None => Err("User not found".to_string()),
     }
@@ -299,12 +265,11 @@ pub async fn signup_user(name: String, email: String, password: String) -> Resul
         .map_err(|e| e.to_string())?;
 
     sqlx::query(
-        "INSERT INTO user (name, email, password, authentication_type_id) VALUES (?, ?, ?, ?)",
+        "INSERT INTO user (name, email, password) VALUES (?, ?, ?)",
     )
     .bind(name)
     .bind(email)
     .bind(password)
-    .bind(1) // authentication_type_id for email and password
     .execute(&pool)
     .await
     .map_err(|e| e.to_string())?;
@@ -407,6 +372,39 @@ pub async fn create_file_for_database(name: String, description: String) -> Resu
     let id: i64 = result.get("id");
 
     Ok(id)
+}
+
+#[tauri::command]
+pub async fn edit_file_database(id: i64, name: String, description: String) -> Result<(), String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    sqlx::query("UPDATE query_file SET name = ?, description = ? WHERE id = ?")
+        .bind(name)
+        .bind(description)
+        .bind(id)
+        .execute(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn delete_file_database(id: i64) -> Result<(), String> {
+    let database_url = get_db_path();
+    let pool = SqlitePool::connect(&format!("sqlite://{}", database_url))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    sqlx::query("DELETE FROM query_file WHERE id = ?")
+        .bind(id)
+        .execute(&pool)
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 #[tauri::command]

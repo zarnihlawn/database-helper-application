@@ -4,7 +4,7 @@
 	import { invoke } from '@tauri-apps/api/core';
 
 	let fileName = $state('');
-	let fileDescription = $state('');
+	let fileDescription = $state(' ');
 	let databaseConnectionId = $derived(
 		selectedDatabaseState.selectedDatabase?.id
 	);
@@ -14,31 +14,31 @@
 		onClose: () => void;
 	}>();
 
-	let selectedFile = $state<QueryFileInterface | null>(null);
+	let selectedFileId = $state(0);
+
 
 	function handleClose() {
 		onClose();
 	}
 
-	async function handleCreateFile() {
+	async function handleEditFile() {
 		if (fileName === '') {
 			return;
 		} else {
-			try {
-				const fileId = await invoke('create_file_for_database', {
-					name: fileName,
-					description: fileDescription
-				});
+			if (selectedFileId) {
 				try {
-					await invoke('store_file_with_database', {
-						databaseConnectionId: databaseConnectionId,
-						queryFileId: fileId
+					console.log(
+						'Selected File Id: ',
+						selectedFileId)
+					await invoke('edit_file_database', {
+						id: selectedFileId,
+						name: fileName,
+						description: fileDescription
 					});
+					handleClose();
 				} catch (error) {
 					console.error(error);
 				}
-			} catch (error) {
-				console.error(error);
 			}
 		}
 	}
@@ -48,10 +48,10 @@
 	<div class="modal-box flex h-[50vh] w-11/12 max-w-5xl flex-col gap-3">
 		<h2 class="text-2xl font-bold">Edit File</h2>
 
-		<select class="select w-full" bind:value={selectedFile}>
-			<option disabled selected>Pick a file ...</option>
+		<select class="select w-full" bind:value={selectedFileId}>
+			<option disabled selected value={0}>Pick a file ...</option>
 			{#each fileCollection as collection}
-				<option>{collection.name}</option>
+				<option value={collection.id}>{collection.name}</option>
 			{/each}
 		</select>
 
@@ -72,7 +72,7 @@
 		</fieldset>
 
 		<div class="modal-action">
-			<button class="btn btn-primary" onclick={handleCreateFile}>Create</button>
+			<button class="btn btn-primary" onclick={handleEditFile}>Edit</button>
 			<button class="btn btn-error" onclick={handleClose}>Cancel</button>
 		</div>
 	</div>

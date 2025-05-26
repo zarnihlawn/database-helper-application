@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { UserInterface } from '$lib/model/interface/schema.interface';
 	import { setUserToLocalStorage } from '$lib/store/safe/local-storage/user.local-storage.svelte';
-	import { userState } from '$lib/store/state/user.state.svelte';
 	import { goToRoute } from '$lib/util/router.util';
 	import { invoke } from '@tauri-apps/api/core';
 
@@ -14,7 +13,13 @@
 			const id: number = result.id;
 			const name: string = result.name;
 			const email: string = result.email;
-			setUserToLocalStorage({ id, name, email });
+			try {
+
+				setUserToLocalStorage({ id, name, email });
+			}
+			catch (error ){
+
+			}
 			goToRoute('/auth/profile');
 		}
 	}
@@ -53,9 +58,7 @@
 			<p>
 				Don't have an account? <a href="/auth/signup" class="link text-primary">Signup</a>
 			</p>
-			<p>
-				Forgot password? <a href="/auth/reset-password" class="link text-primary">Reset</a>
-			</p>
+			
 		</fieldset>
 	</form>
 </main>

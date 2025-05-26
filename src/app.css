@@ -4,9 +4,7 @@
 @plugin "daisyui" {
 	themes:
 		light --default,
-		abyss --prefersdark,
-		light,
-		abyss;
+		abyss --prefersdark;
 }
 
 @import './lib/asset/style/font.style.css';
@@ -37,8 +35,7 @@
 	animation: fade-in-up 0.8s ease-out both;
 }
 
-
-html, body {
+html,
+body {
 	overflow: hidden;
 }
-

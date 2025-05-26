@@ -7,14 +7,23 @@
 	let user = $derived(userState.user);
 
 	onMount(() => {
-		if (!user) {
-			goToRoute('/auth/login');
-		}
+		checkAuthenticated();
 	});
 
+	function checkAuthenticated() {
+		if(!user) {
+			goToRoute('/auth/login');
+		}
+	}
+
 	function handleLogout() {
-		removeUserFromLocalStorage();
-		goToRoute('/auth/login');
+		
+		try {
+			removeUserFromLocalStorage();
+			checkAuthenticated();
+		}
+		catch (error ) {
+		}
 	}
 </script>
 

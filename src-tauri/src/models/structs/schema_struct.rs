@@ -87,11 +87,9 @@ pub struct QueryFileDtoStruct {
 #[derive(serde::Serialize)]
 pub struct User {
     pub id: i32,
-    pub authentication_type_id: i32,
     pub name: String,
     pub password: String,
     pub email: String,
-    pub secondary_email: Option<String>,
 }
 
 pub struct UserDto {

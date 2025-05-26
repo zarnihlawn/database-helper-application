@@ -64,13 +64,19 @@
 			queryBlockId: id
 		});
 		let database = selectedDatabaseState.selectedDatabase;
-		let result = await invoke('run_query_block', {
-			queryBlockId: id,
-			databaseSource: database?.datasource_id,
-			databaseConnection: database?.url,
-			content: content
-		});
-		queryBlocksRunResult[id] = result;
+		try {
+			let result = await invoke('run_query_block', {
+				queryBlockId: id,
+				databaseSource: database?.datasource_id,
+				databaseConnection: database?.url,
+				content: content
+			});
+			console.log('Query result:', result);
+			queryBlocksRunResult[id] = result;
+		} catch (error) {
+			console.error('Query error:', error);
+			queryBlocksRunResult[id] = { error: (error as Error).toString() };
+		}
 	}
 
 	async function handleLanguageChange(event: Event, blockId: number) {

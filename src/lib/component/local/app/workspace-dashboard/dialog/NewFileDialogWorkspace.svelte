@@ -30,6 +30,7 @@
 						databaseConnectionId: databaseConnectionId,
 						queryFileId: fileId
 					});
+					onClose();
 				} catch (error) {
 					console.error(error);
 				}

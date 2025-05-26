@@ -9,10 +9,12 @@
 	import EditFileDialogWorkspace from '../dialog/EditFileDialogWorkspace.svelte';
 	import type { QueryFileInterface } from '$lib/model/interface/schema.interface';
 	import { selectedFileState } from '$lib/store/state/selectedFile.svelte';
+	import DeleteFileDialog from '../dialog/DeleteFileDialog.svelte';
 
 	let selectedDatabase = $derived(selectedDatabaseState.selectedDatabase);
 	let showNewFileDialog = $state(false);
 	let showEditFileDialog = $state(false);
+	let showDeleteFileDialog = $state(false);
 	let fileCollection = $state<QueryFileInterface[]>([]);
 
 	async function getFileCollection() {
@@ -35,6 +37,10 @@
 		selectedFileState.selectedFile = file;
 	}
 
+	function handleDeleteFile() {
+		showDeleteFileDialog = true;
+	}
+	
 	onDestroy(() => {
 		selectedFileState.selectedFile = null;
 	});
@@ -52,7 +58,7 @@
 		>
 			{@html EditSvg('size-4')} Edit File
 		</button>
-		<button class="btn btn-error" class:disabled={fileCollection.length === 0}>
+		<button class="btn btn-error" class:disabled={fileCollection.length === 0} onclick={handleDeleteFile}>
 			{@html DeleteSvg('size-4')} Delete File
 		</button>
 	</section>
@@ -86,4 +92,9 @@
 		{fileCollection}
 		onClose={() => (showEditFileDialog = false)}
 	/>
+{/if}
+
+{#if showDeleteFileDialog}
+<DeleteFileDialog {fileCollection}
+		onClose={() => (showDeleteFileDialog = false)} />
 {/if}

@@ -9,10 +9,11 @@ use database_connection::mongo_database_connection::{
 };
 
 use database_connection::app_database_connection::{
-    app_database_init, create_file_for_database, create_new_query_block, delete_query_block,
-    get_content_from_query_block, get_content_type, get_database_connection, get_datasource,
-    get_file_collection, get_query_blocks, get_user_by_email, remove_database_connection,
-    run_query_block, save_query_content_to_the_block, signup_user, store_file_with_database,
+    app_database_init, create_file_for_database, create_new_query_block, delete_file_database,
+    delete_query_block, edit_file_database, get_content_from_query_block, get_content_type,
+    get_database_connection, get_datasource, get_file_collection, get_query_blocks,
+    get_user_by_email, remove_database_connection, run_query_block,
+    save_query_content_to_the_block, signup_user, store_file_with_database,
     update_query_block_content_type_id,
 };
 use database_connection::maria_database_connection::{
@@ -72,17 +73,14 @@ pub fn run() {
             {
                 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
 
-                let ctrl_n_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyN);
                 let ctrl_1_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::Digit1);
                 let ctrl_2_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::Digit2);
                 let ctrl_3_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::Digit3);
                 let ctrl_4_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::Digit4);
-                let ctrl_s_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyS);
 
                 app.handle().plugin(
                     tauri_plugin_global_shortcut::Builder::new()
                         .with_handler(move |app_handle, shortcut, event| match shortcut {
-                            s if s == &ctrl_n_shortcut => {}
                             s if s == &ctrl_1_shortcut => {
                                 if event.state() == ShortcutState::Pressed {
                                     go_to_tab_one(app_handle.clone()).unwrap();
@@ -103,7 +101,6 @@ pub fn run() {
                                     go_to_tab_four(app_handle.clone()).unwrap();
                                 }
                             }
-                            s if s == &ctrl_s_shortcut => {}
                             _ => {
                                 println!("Unhandled shortcut: {:?}", shortcut);
                             }
@@ -113,12 +110,10 @@ pub fn run() {
 
                 // Register all shortcuts
                 let shortcut_manager = app.global_shortcut();
-                shortcut_manager.register(ctrl_n_shortcut)?;
                 shortcut_manager.register(ctrl_1_shortcut)?;
                 shortcut_manager.register(ctrl_2_shortcut)?;
                 shortcut_manager.register(ctrl_3_shortcut)?;
                 shortcut_manager.register(ctrl_4_shortcut)?;
-                shortcut_manager.register(ctrl_s_shortcut)?;
             }
 
             if cfg!(debug_assertions) {
@@ -172,6 +167,8 @@ pub fn run() {
             run_query_block,
             get_content_from_query_block,
             remove_database_connection,
+            edit_file_database,
+            delete_file_database,
             // Sqlite Database
             test_sqlite_connection,
             save_sqlite_connection,

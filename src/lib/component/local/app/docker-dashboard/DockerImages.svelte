@@ -2,26 +2,30 @@
 	import { BuildSvg } from '$lib/asset/image/svg/build-svg';
 	import { DeleteSvg } from '$lib/asset/image/svg/delete-svg';
 	import { MenuSvg } from '$lib/asset/image/svg/menu-svg';
-	import { dockerContainersState, dockerImagesState } from '$lib/store/state/docker.state.svelte';
+	import {
+		dockerContainersState,
+		dockerImagesState
+	} from '$lib/store/state/docker.state.svelte';
 	import { deleteDockerImage } from '$lib/tool/docker.tool';
+	import { goToRoute } from '$lib/util/router.util';
 	import DeleteImageDialog from './dialog/DeleteImageDialog.svelte';
 	import DockerBuildContainerDialog from './dialog/DockerBuildContainerDialog.svelte';
 
 	let showBuildDialog = $state(false);
 	let selectedImage = $state<string | null>(null);
 
-		let deleteImageDialog = $state(false);
-		let deleteImageId = $state('');
-		let deleteImageName = $state('');
+	let deleteImageDialog = $state(false);
+	let deleteImageId = $state('');
+	let deleteImageName = $state('');
 
-		function handleDeleteImageDialog(imageId: string, imageName: string) {
-			deleteImageId = imageId;
-			deleteImageName = imageName;
-			deleteImageDialog = true;
-		}
-		function handleDialogClose() {
-			deleteImageDialog = false;
-		}
+	function handleDeleteImageDialog(imageId: string, imageName: string) {
+		deleteImageId = imageId;
+		deleteImageName = imageName;
+		deleteImageDialog = true;
+	}
+	function handleDialogClose() {
+		deleteImageDialog = false;
+	}
 
 	function handleBuildClick(image: string) {
 		selectedImage = image;
@@ -36,6 +40,9 @@
 	function handleBuildClose() {
 		showBuildDialog = false;
 		selectedImage = null;
+	}
+	function goToDocumentationPage() {
+		goToRoute('/app/documentation-dashboard/user-manual-documentation');
 	}
 </script>
 
@@ -56,14 +63,16 @@
 									class="tooltip tooltip-success"
 									data-tip="{image.repository} is being used by at least one container."
 								>
-									<span class="indicator-item status status-success mb-1 ml-1"></span>
+									<span class="indicator-item status status-success mb-1 ml-1"
+									></span>
 								</div>
 							{:else}
 								<div
 									class="tooltip tooltip-error"
 									data-tip="{image.repository} has never been used."
 								>
-									<span class="indicator-item status status-error mb-1 ml-1"></span>
+									<span class="indicator-item status status-error mb-1 ml-1"
+									></span>
 								</div>
 							{/if}
 						</h2>
@@ -79,7 +88,9 @@
 								<p>Size: {image.size}</p>
 							</div>
 						</div>
-						<div class="link-info cursor-pointer text-xs font-semibold opacity-60">
+						<div
+							class="link-info cursor-pointer text-xs font-semibold opacity-60"
+						>
 							More Info ...
 						</div>
 					</div>
@@ -97,14 +108,24 @@
 				</button>
 				<button
 					class="btn btn-square btn-ghost text-error"
-					onclick={() => handleDeleteImageDialog(image.image_id, image.repository)}
+					onclick={() =>
+						handleDeleteImageDialog(image.image_id, image.repository)}
 				>
-					<div class="tooltip tooltip-left tooltip-error" data-tip="Delete Image">
+					<div
+						class="tooltip tooltip-left tooltip-error"
+						data-tip="Delete Image"
+					>
 						{@html DeleteSvg('size-7')}
 					</div>
 				</button>
-				<button class="btn btn-square btn-ghost text-info">
-					<div class="tooltip tooltip-left tooltip-info" data-tip="See More Actions">
+				<button
+					class="btn btn-square btn-ghost text-info"
+					onclick={goToDocumentationPage}
+				>
+					<div
+						class="tooltip tooltip-left tooltip-info"
+						data-tip="See More Actions"
+					>
 						{@html MenuSvg}
 					</div>
 				</button>

@@ -8,20 +8,26 @@
 		startDockerContainer,
 		stopDockerContainer
 	} from '$lib/tool/docker.tool';
+	import { goToRoute } from '$lib/util/router.util';
 	import DeleteContainerDialog from './dialog/DeleteContainerDialog.svelte';
 
 	let deleteContainerDialog = $state(false);
 	let deleteContainerId = $state('');
 	let deleteContainerName = $state('');
 
-	function handleDeleteContainerDialog(containerId: string, containerName: string) {
+	function handleDeleteContainerDialog(
+		containerId: string,
+		containerName: string
+	) {
 		deleteContainerId = containerId;
 		deleteContainerName = containerName;
 		deleteContainerDialog = true;
-
 	}
 	function handleDialogClose() {
 		deleteContainerDialog = false;
+	}
+	function goToDocumentationPage() {
+		goToRoute('/app/documentation-dashboard/user-manual-documentation');
 	}
 </script>
 
@@ -101,7 +107,8 @@
 				{/if}
 				<button
 					class="btn btn-square btn-ghost text-error"
-					onclick={() => handleDeleteContainerDialog(container.id, container.name)}
+					onclick={() =>
+						handleDeleteContainerDialog(container.id, container.name)}
 				>
 					<div
 						class="tooltip tooltip-left tooltip-error"
@@ -110,7 +117,10 @@
 						{@html DeleteSvg('size-7')}
 					</div>
 				</button>
-				<button class="btn btn-square btn-ghost text-info">
+				<button
+					class="btn btn-square btn-ghost text-info"
+					onclick={goToDocumentationPage}
+				>
 					<div
 						class="tooltip tooltip-left tooltip-info"
 						data-tip="See More Actions"
