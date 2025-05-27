@@ -6,17 +6,20 @@
 	import { getThemeFromLocalStorage } from '$lib/store/safe/local-storage/theme.local-storage.svelte';
 	import { getFontFromLocalStorage } from '$lib/store/safe/local-storage/font.local-storage.svelte';
 	import { getUserFromLocalStorage } from '$lib/store/safe/local-storage/user.local-storage.svelte';
+	// import { RenderScan } from 'svelte-render-scan';
 
 	let { children } = $props();
 
 	// Check Update
-	
 
 	// Local Storage
 	getUserFromLocalStorage();
 	getThemeFromLocalStorage();
 	getFontFromLocalStorage();
 </script>
+
+<!-- Render Scan -->
+<!-- <RenderScan /> -->
 
 <!-- Stalkers -->
 <DockerStalker />
