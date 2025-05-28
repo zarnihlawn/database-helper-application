@@ -2,4 +2,4 @@
 
 > bi75nu@student.sunderland.ac.uk
 
-## Getting Started
+The documentation is inside the application.
